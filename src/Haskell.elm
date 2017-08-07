@@ -4,12 +4,15 @@ import Html exposing (Html, span)
 import Type exposing (..)
 
 
-type alias TypeVar =
-    { name : String }
+type TypeVar
+    = TypeVar { name : String }
 
 
 type TypeClass
-    = TypeClass String (List TypeClass)
+    = TypeClass
+        { name : String
+        , supers : List TypeClass
+        }
 
 
 type Constraint
@@ -18,7 +21,7 @@ type Constraint
 
 
 type Op
-    = Op String
+    = Op { symbol : String }
 
 
 type Type
@@ -59,7 +62,7 @@ substitute pairs t =
                 Constrained cs (substitute pairs t1)
 
 
-parenthesize : Int -> ( Int, Html msg ) -> Html msg
+parenthesize : Precedence -> ( Precedence, Html msg ) -> Html msg
 parenthesize outer ( inner, n ) =
     if (inner <= outer) then
         juxt [ symbol "(", n, symbol ")" ]
@@ -84,7 +87,7 @@ prec =
 typeToSrc : Type -> ( Precedence, Html msg )
 typeToSrc t =
     case t of
-        Var v ->
+        Var (TypeVar v) ->
             ( prec.atom, name v.name )
 
         App t1 t2 ->
@@ -95,7 +98,7 @@ typeToSrc t =
             ( prec.app, words [ parenthesize prec.app (typeToSrc t1), parenthesize prec.app (typeToSrc t2), parenthesize prec.app (typeToSrc t3) ] )
 
         Infix t1 (Op op) t2 ->
-            ( prec.infix, words [ parenthesize prec.infix (typeToSrc t1), symbol op, parenthesize prec.infix (typeToSrc t2) ] )
+            ( prec.infix, words [ parenthesize prec.infix (typeToSrc t1), symbol op.symbol, parenthesize prec.infix (typeToSrc t2) ] )
 
         Fn t1 t2 ->
             ( prec.fn, words [ parenthesize prec.fn (typeToSrc t1), symbol "→", parenthesize prec.fn (typeToSrc t2) ] )
@@ -107,8 +110,8 @@ typeToSrc t =
 constraintToSrc : Constraint -> Html msg
 constraintToSrc c =
     case c of
-        TypeClassConstraint (TypeClass c _) v ->
-            words [ name c, name v.name ]
+        TypeClassConstraint (TypeClass tc) (TypeVar v) ->
+            words [ name tc.name, name v.name ]
 
-        Equivalent t v ->
+        Equivalent t (TypeVar v) ->
             words [ name v.name, symbol "~", parenthesize prec.equiv (typeToSrc t) ]

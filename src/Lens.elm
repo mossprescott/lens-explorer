@@ -6,27 +6,27 @@ import Type exposing (..)
 
 
 p =
-    TypeVar "p"
+    TypeVar { name = "p" }
 
 
 f =
-    TypeVar "f"
+    TypeVar { name = "f" }
 
 
 s =
-    TypeVar "s"
+    TypeVar { name = "s" }
 
 
 t =
-    TypeVar "t"
+    TypeVar { name = "t" }
 
 
 a =
-    TypeVar "a"
+    TypeVar { name = "a" }
 
 
 b =
-    TypeVar "b"
+    TypeVar { name = "b" }
 
 
 type alias Constrained =
@@ -38,11 +38,11 @@ type alias Constrained =
 
 
 profunctor =
-    TypeClass "Profunctor" []
+    TypeClass { name = "Profunctor", supers = [] }
 
 
 choice =
-    TypeClass "Choice" [ profunctor ]
+    TypeClass { name = "Choice", supers = [ profunctor ] }
 
 
 
@@ -50,19 +50,19 @@ choice =
 
 
 functor =
-    TypeClass "Functor" []
+    TypeClass { name = "Functor", supers = [] }
 
 
 applicative =
-    TypeClass "Applicative" [ functor ]
+    TypeClass { name = "Applicative", supers = [ functor ] }
 
 
 apply =
-    TypeClass "Apply" [ functor ]
+    TypeClass { name = "Apply", supers = [ functor ] }
 
 
 contravariant =
-    TypeClass "Contravariant" []
+    TypeClass { name = "Contravariant", supers = [] }
 
 
 type alias Optic =
@@ -166,7 +166,7 @@ simplified o =
 
 opticToSrc : Optic -> Html msg
 opticToSrc o =
-    words ([ name o.name ] ++ (List.map (\v -> name v.name) o.params) ++ [ symbol "::", keyword "forall", name "p", name "f", symbol ".", parenthesize 0 (typeToSrc (opticType o)) ])
+    words ([ name o.name ] ++ (List.map (\(TypeVar v) -> name v.name) o.params) ++ [ symbol "::", keyword "forall", name "p", name "f", symbol ".", parenthesize 0 (typeToSrc (opticType o)) ])
 
 
 classesToSrc : List TypeClass -> TypeVar -> Html msg
