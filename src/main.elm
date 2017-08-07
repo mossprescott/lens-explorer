@@ -1,4 +1,4 @@
-module Main exposing (..)
+module Main exposing (main)
 
 import Html exposing (Html, div, input, text)
 import Html.Attributes exposing (..)
@@ -54,4 +54,11 @@ view model =
 
 
 renderOptic o =
-    div [] [ text (opticToSrc o) ]
+    div [] [ opticToSrc o ]
+
+
+
+--div
+--    [ style [ ( "font-family", "Source Sans Pro, sans-serif" ) ]
+--    ]
+--    [ text (opticToSrc o) ]

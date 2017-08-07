@@ -1,5 +1,8 @@
 module Haskell exposing (..)
 
+import Html exposing (Html, span)
+import Type exposing (..)
+
 
 type TypeVar
     = TypeVar String
@@ -27,12 +30,12 @@ type Type
     | Constrained (List Constraint) Type
 
 
-parenthesize : Int -> ( Int, String ) -> String
-parenthesize outer ( inner, str ) =
+parenthesize : Int -> ( Int, Html msg ) -> Html msg
+parenthesize outer ( inner, n ) =
     if (inner <= outer) then
-        "(" ++ str ++ ")"
+        juxt [ symbol "(", n, symbol ")" ]
     else
-        str
+        n
 
 
 type alias Precedence =
@@ -49,34 +52,34 @@ prec =
     }
 
 
-typeToSrc : Type -> ( Precedence, String )
+typeToSrc : Type -> ( Precedence, Html msg )
 typeToSrc t =
     case t of
         Var (TypeVar n) ->
-            ( prec.atom, n )
+            ( prec.atom, name n )
 
         App t1 t2 ->
-            ( prec.app, parenthesize prec.app (typeToSrc t1) ++ " " ++ parenthesize prec.app (typeToSrc t2) )
+            ( prec.app, words [ parenthesize prec.app (typeToSrc t1), symbol " ", parenthesize prec.app (typeToSrc t2) ] )
 
         -- TODO: make this smarter and use curried `App`s instead
         App2 t1 t2 t3 ->
-            ( prec.app, parenthesize prec.app (typeToSrc t1) ++ " " ++ parenthesize prec.app (typeToSrc t2) ++ " " ++ parenthesize prec.app (typeToSrc t3) )
+            ( prec.app, words [ parenthesize prec.app (typeToSrc t1), symbol " ", parenthesize prec.app (typeToSrc t2), symbol " ", parenthesize prec.app (typeToSrc t3) ] )
 
         Infix t1 (Op op) t2 ->
-            ( prec.infix, parenthesize prec.infix (typeToSrc t1) ++ " " ++ op ++ " " ++ parenthesize prec.infix (typeToSrc t2) )
+            ( prec.infix, words [ parenthesize prec.infix (typeToSrc t1), symbol (" " ++ op ++ " "), parenthesize prec.infix (typeToSrc t2) ] )
 
         Fn t1 t2 ->
-            ( prec.fn, parenthesize prec.fn (typeToSrc t1) ++ " → " ++ parenthesize prec.fn (typeToSrc t2) )
+            ( prec.fn, words [ parenthesize prec.fn (typeToSrc t1), symbol " → ", parenthesize prec.fn (typeToSrc t2) ] )
 
         Constrained cs t ->
-            ( prec.constrained, "(" ++ String.join ", " (List.map constraintToSrc cs) ++ ") ⇒ " ++ parenthesize prec.constrained (typeToSrc t) )
+            ( prec.constrained, words [ symbol "(", juxt (List.intersperse (symbol ", ") (List.map constraintToSrc cs)), symbol ")", symbol "⇒", parenthesize prec.constrained (typeToSrc t) ] )
 
 
-constraintToSrc : Constraint -> String
+constraintToSrc : Constraint -> Html msg
 constraintToSrc c =
     case c of
         TypeClassConstraint (TypeClass c _) (TypeVar v) ->
-            c ++ " " ++ v
+            words [ name c, name v ]
 
         Equivalent t (TypeVar v) ->
-            v ++ " ~ " ++ parenthesize prec.equiv (typeToSrc t)
+            words [ name v, symbol "~", parenthesize prec.equiv (typeToSrc t) ]

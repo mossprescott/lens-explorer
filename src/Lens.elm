@@ -1,6 +1,8 @@
 module Lens exposing (..)
 
 import Haskell exposing (..)
+import Html exposing (Html)
+import Type exposing (..)
 
 
 p =
@@ -93,6 +95,6 @@ opticType o =
 -- TODO: compute actual params
 
 
-opticToSrc : Optic -> String
+opticToSrc : Optic -> Html msg
 opticToSrc o =
-    o.name ++ " s t a b :: forall p f. " ++ parenthesize 0 (typeToSrc (opticType o))
+    words [ name o.name, name "s", name "t", name "a", name "b", symbol "::", keyword "forall", name "p", name "f", symbol ".", parenthesize 0 (typeToSrc (opticType o)) ]
