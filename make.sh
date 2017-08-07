@@ -1,1 +1,1 @@
-elm-make src/Table.elm --output=table.html
+elm-make src/main.elm --output=index.html
