@@ -68,10 +68,3 @@ checkbox msg name selected =
         [ input [ type_ "checkbox", checked selected, onClick msg ] []
         , text name
         ]
-
-
-
---div
---    [ style [ ( "font-family", "Source Sans Pro, sans-serif" ) ]
---    ]
---    [ text (opticToSrc o) ]
