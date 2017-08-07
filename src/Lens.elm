@@ -76,6 +76,14 @@ simpleLens =
         (Fn (Var s) (App (Var f) (Var s)))
 
 
+iso =
+    Optic "Iso"
+        [ profunctor ]
+        [ functor ]
+        (App2 (Var p) (Var a) (App (Var f) (Var b)))
+        (App2 (Var p) (Var s) (App (Var f) (Var t)))
+
+
 opticType : Optic -> Type
 opticType o =
     Constrained (List.map (\c -> TypeClassConstraint c p) o.pClasses ++ List.map (\c -> TypeClassConstraint c f) o.fClasses) (Fn o.from o.to)
@@ -87,4 +95,4 @@ opticType o =
 
 opticToSrc : Optic -> String
 opticToSrc o =
-    o.name ++ " s t a b :: forall p f. " ++ typeToSrc (opticType o)
+    o.name ++ " s t a b :: forall p f. " ++ parenthesize 0 (typeToSrc (opticType o))
