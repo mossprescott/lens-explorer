@@ -67,6 +67,7 @@ contravariant =
 
 type alias Optic =
     { name : String
+    , params : List TypeVar
     , pClasses : List TypeClass
     , fClasses : List TypeClass
     , from : Type
@@ -76,23 +77,16 @@ type alias Optic =
 
 lens =
     Optic "Lens"
+        [ s, t, a, b ]
         []
         [ functor ]
         (Fn (Var a) (App (Var f) (Var b)))
         (Fn (Var s) (App (Var f) (Var t)))
 
 
-
---simpleLens =
---    Optic "Lens'"
---        []
---        [ functor ]
---        (Fn (Var a) (App (Var f) (Var a)))
---        (Fn (Var s) (App (Var f) (Var s)))
-
-
 iso =
     Optic "Iso"
+        [ s, t, a, b ]
         [ profunctor ]
         [ functor ]
         (App2 (Var p) (Var a) (App (Var f) (Var b)))
@@ -101,6 +95,7 @@ iso =
 
 prism =
     Optic "Prism"
+        [ s, t, a, b ]
         [ choice ]
         [ applicative ]
         (App2 (Var p) (Var a) (App (Var f) (Var b)))
@@ -109,6 +104,7 @@ prism =
 
 traversal =
     Optic "Traversal"
+        [ s, t, a, b ]
         []
         [ applicative ]
         (Fn (Var a) (App (Var f) (Var b)))
@@ -117,6 +113,7 @@ traversal =
 
 fold =
     Optic "Fold"
+        [ s, a ]
         []
         [ contravariant, applicative ]
         (Fn (Var a) (App (Var f) (Var a)))
@@ -125,6 +122,7 @@ fold =
 
 fold1 =
     Optic "Fold1"
+        [ s, a ]
         []
         [ contravariant, apply ]
         (Fn (Var a) (App (Var f) (Var a)))
@@ -140,13 +138,35 @@ opticType o =
     Constrained (List.map (\c -> TypeClassConstraint c p) o.pClasses ++ List.map (\c -> TypeClassConstraint c f) o.fClasses) (Fn o.from o.to)
 
 
+simplify : Optic -> Maybe Optic
+simplify o =
+    let
+        params =
+            List.filter (\v -> v /= t && v /= b) o.params
 
--- TODO: compute actual params (dropping p, b, and t as needed)
+        subs =
+            substitute [ ( t, Var s ), ( b, Var a ) ]
+    in
+        if (params /= o.params) then
+            Just
+                { o
+                    | name = o.name ++ "'"
+                    , params = params
+                    , from = subs o.from
+                    , to = subs o.to
+                }
+        else
+            Nothing
+
+
+simplified : Optic -> Optic
+simplified o =
+    Maybe.withDefault o (simplify o)
 
 
 opticToSrc : Optic -> Html msg
 opticToSrc o =
-    words [ name o.name, name "s", name "t", name "a", name "b", symbol "::", keyword "forall", name "p", name "f", symbol ".", parenthesize 0 (typeToSrc (opticType o)) ]
+    words ([ name o.name ] ++ (List.map (\v -> name v.name) o.params) ++ [ symbol "::", keyword "forall", name "p", name "f", symbol ".", parenthesize 0 (typeToSrc (opticType o)) ])
 
 
 classesToSrc : List TypeClass -> TypeVar -> Html msg
@@ -160,9 +180,15 @@ opticToSrcRow o =
         (List.map (\n -> td [] [ n ])
             [ name o.name
             , name "s"
-            , name "t"
+            , if (List.member t o.params) then
+                name "t"
+              else
+                symbol ""
             , name "a"
-            , name "b"
+            , if (List.member b o.params) then
+                name "b"
+              else
+                symbol ""
             , symbol "::"
             , keyword "forall"
             , name "p"

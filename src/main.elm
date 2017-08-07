@@ -22,12 +22,13 @@ main =
 type alias Model =
     { optics : List Optic
     , aligned : Bool
+    , simple : Bool
     }
 
 
 model : Model
 model =
-    Model allOptics True
+    Model allOptics True False
 
 
 
@@ -36,6 +37,7 @@ model =
 
 type Msg
     = SetAligned Bool
+    | SetSimple Bool
 
 
 update : Msg -> Model -> Model
@@ -44,6 +46,9 @@ update msg model =
         SetAligned newValue ->
             { model | aligned = newValue }
 
+        SetSimple newValue ->
+            { model | simple = newValue }
+
 
 
 -- VIEW
@@ -51,13 +56,23 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ if model.aligned then
-            table [] (List.map opticToSrcRow model.optics)
-          else
-            div [] (List.map (\o -> Html.p [] [ opticToSrc o ]) model.optics)
-        , fieldset [] [ checkbox (SetAligned (not model.aligned)) "Aligned" model.aligned ]
-        ]
+    let
+        optics =
+            if model.simple then
+                (List.map simplified model.optics)
+            else
+                model.optics
+    in
+        div []
+            [ if model.aligned then
+                table [] (List.map opticToSrcRow optics)
+              else
+                div [] (List.map (\o -> Html.p [] [ opticToSrc o ]) optics)
+            , fieldset []
+                [ checkbox (SetAligned (not model.aligned)) "Aligned" model.aligned
+                , checkbox (SetSimple (not model.simple)) "Simple" model.simple
+                ]
+            ]
 
 
 checkbox : msg -> String -> Bool -> Html msg

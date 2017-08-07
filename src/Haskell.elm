@@ -4,8 +4,8 @@ import Html exposing (Html, span)
 import Type exposing (..)
 
 
-type TypeVar
-    = TypeVar String
+type alias TypeVar =
+    { name : String }
 
 
 type TypeClass
@@ -28,6 +28,35 @@ type Type
     | Infix Type Op Type
     | Fn Type Type
     | Constrained (List Constraint) Type
+
+
+substitute : List ( TypeVar, Type ) -> Type -> Type
+substitute pairs t =
+    let
+        match =
+            List.head (List.filter (\( v, _ ) -> Var v == t) pairs)
+    in
+        case ( match, t ) of
+            ( Just ( _, u ), _ ) ->
+                u
+
+            ( Nothing, Var _ ) ->
+                t
+
+            ( Nothing, App t1 t2 ) ->
+                App (substitute pairs t1) (substitute pairs t2)
+
+            ( Nothing, App2 t1 t2 t3 ) ->
+                App2 (substitute pairs t1) (substitute pairs t2) (substitute pairs t3)
+
+            ( Nothing, Infix t1 op t2 ) ->
+                Infix (substitute pairs t1) op (substitute pairs t2)
+
+            ( Nothing, Fn t1 t2 ) ->
+                Fn (substitute pairs t1) (substitute pairs t2)
+
+            ( Nothing, Constrained cs t1 ) ->
+                Constrained cs (substitute pairs t1)
 
 
 parenthesize : Int -> ( Int, Html msg ) -> Html msg
@@ -55,8 +84,8 @@ prec =
 typeToSrc : Type -> ( Precedence, Html msg )
 typeToSrc t =
     case t of
-        Var (TypeVar n) ->
-            ( prec.atom, name n )
+        Var v ->
+            ( prec.atom, name v.name )
 
         App t1 t2 ->
             ( prec.app, words [ parenthesize prec.app (typeToSrc t1), parenthesize prec.app (typeToSrc t2) ] )
@@ -78,8 +107,8 @@ typeToSrc t =
 constraintToSrc : Constraint -> Html msg
 constraintToSrc c =
     case c of
-        TypeClassConstraint (TypeClass c _) (TypeVar v) ->
-            words [ name c, name v ]
+        TypeClassConstraint (TypeClass c _) v ->
+            words [ name c, name v.name ]
 
-        Equivalent t (TypeVar v) ->
-            words [ name v, symbol "~", parenthesize prec.equiv (typeToSrc t) ]
+        Equivalent t v ->
+            words [ name v.name, symbol "~", parenthesize prec.equiv (typeToSrc t) ]
