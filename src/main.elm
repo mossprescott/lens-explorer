@@ -26,7 +26,7 @@ type alias Model =
 
 model : Model
 model =
-    Model [ lens, simpleLens, iso ]
+    Model allOptics
 
 
 
