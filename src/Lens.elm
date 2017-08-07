@@ -149,6 +149,11 @@ opticToSrc o =
     words [ name o.name, name "s", name "t", name "a", name "b", symbol "::", keyword "forall", name "p", name "f", symbol ".", parenthesize 0 (typeToSrc (opticType o)) ]
 
 
+classesToSrc : List TypeClass -> TypeVar -> Html msg
+classesToSrc cs v =
+    juxt (List.intersperse (symbol ", ") (List.map (\c -> constraintToSrc (TypeClassConstraint c v)) cs))
+
+
 opticToSrcRow : Optic -> Html msg
 opticToSrcRow o =
     tr []
@@ -164,12 +169,13 @@ opticToSrcRow o =
             , name "f"
             , symbol "."
             , symbol "("
-              -- TODO: constraints
+            , classesToSrc o.pClasses p
+            , symbol ","
+            , classesToSrc o.fClasses f
             , symbol ")"
             , symbol "⇒"
             , parenthesize prec.fn (typeToSrc (o.from))
             , symbol "→"
             , parenthesize 0 (typeToSrc (o.to))
-              --, parenthesize 0 (typeToSrc (opticType o))
             ]
         )
