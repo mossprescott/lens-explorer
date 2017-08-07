@@ -1,7 +1,7 @@
 module Lens exposing (..)
 
 import Haskell exposing (..)
-import Html exposing (Html)
+import Html exposing (Html, tr, td)
 import Type exposing (..)
 
 
@@ -147,3 +147,29 @@ opticType o =
 opticToSrc : Optic -> Html msg
 opticToSrc o =
     words [ name o.name, name "s", name "t", name "a", name "b", symbol "::", keyword "forall", name "p", name "f", symbol ".", parenthesize 0 (typeToSrc (opticType o)) ]
+
+
+opticToSrcRow : Optic -> Html msg
+opticToSrcRow o =
+    tr []
+        (List.map (\n -> td [] [ n ])
+            [ name o.name
+            , name "s"
+            , name "t"
+            , name "a"
+            , name "b"
+            , symbol "::"
+            , keyword "forall"
+            , name "p"
+            , name "f"
+            , symbol "."
+            , symbol "("
+              -- TODO: constraints
+            , symbol ")"
+            , symbol "⇒"
+            , parenthesize prec.fn (typeToSrc (o.from))
+            , symbol "→"
+            , parenthesize 0 (typeToSrc (o.to))
+              --, parenthesize 0 (typeToSrc (opticType o))
+            ]
+        )
