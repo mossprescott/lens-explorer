@@ -59,17 +59,17 @@ typeToSrc t =
             ( prec.atom, name n )
 
         App t1 t2 ->
-            ( prec.app, words [ parenthesize prec.app (typeToSrc t1), symbol " ", parenthesize prec.app (typeToSrc t2) ] )
+            ( prec.app, words [ parenthesize prec.app (typeToSrc t1), parenthesize prec.app (typeToSrc t2) ] )
 
         -- TODO: make this smarter and use curried `App`s instead
         App2 t1 t2 t3 ->
-            ( prec.app, words [ parenthesize prec.app (typeToSrc t1), symbol " ", parenthesize prec.app (typeToSrc t2), symbol " ", parenthesize prec.app (typeToSrc t3) ] )
+            ( prec.app, words [ parenthesize prec.app (typeToSrc t1), parenthesize prec.app (typeToSrc t2), parenthesize prec.app (typeToSrc t3) ] )
 
         Infix t1 (Op op) t2 ->
-            ( prec.infix, words [ parenthesize prec.infix (typeToSrc t1), symbol (" " ++ op ++ " "), parenthesize prec.infix (typeToSrc t2) ] )
+            ( prec.infix, words [ parenthesize prec.infix (typeToSrc t1), symbol op, parenthesize prec.infix (typeToSrc t2) ] )
 
         Fn t1 t2 ->
-            ( prec.fn, words [ parenthesize prec.fn (typeToSrc t1), symbol " → ", parenthesize prec.fn (typeToSrc t2) ] )
+            ( prec.fn, words [ parenthesize prec.fn (typeToSrc t1), symbol "→", parenthesize prec.fn (typeToSrc t2) ] )
 
         Constrained cs t ->
             ( prec.constrained, words [ symbol "(", juxt (List.intersperse (symbol ", ") (List.map constraintToSrc cs)), symbol ")", symbol "⇒", parenthesize prec.constrained (typeToSrc t) ] )
