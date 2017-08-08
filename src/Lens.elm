@@ -138,6 +138,9 @@ opticType o =
     Constrained (List.map (\c -> TypeClassConstraint c p) o.pClasses ++ List.map (\c -> TypeClassConstraint c f) o.fClasses) (Fn o.from o.to)
 
 
+{-| Reduce an optic to its "Simple" or "primed" form, if possible, by replacing `t`s and `b`s with
+`s`s and `a`s.
+-}
 simplify : Optic -> Maybe Optic
 simplify o =
     let
