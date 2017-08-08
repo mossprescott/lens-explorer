@@ -167,44 +167,52 @@ simplified o =
     Maybe.withDefault o (simplify o)
 
 
-opticToSrc : Optic -> Html msg
+opticToSrc : Optic -> Node
 opticToSrc o =
-    words ([ name o.name ] ++ (List.map (\(TypeVar v) -> name v.name) o.params) ++ [ symbol "::", keyword "forall", name "p", name "f", symbol ".", parenthesize 0 (typeToSrc (opticType o)) ])
-
-
-classesToSrc : List TypeClass -> TypeVar -> Html msg
-classesToSrc cs v =
-    juxt (List.intersperse (symbol ", ") (List.map (\c -> constraintToSrc (TypeClassConstraint c v)) cs))
-
-
-opticToSrcRow : Optic -> Html msg
-opticToSrcRow o =
-    tr []
-        (List.map (\n -> td [] [ n ])
-            [ name o.name
-            , name "s"
-            , if (List.member t o.params) then
-                name "t"
-              else
-                symbol ""
-            , name "a"
-            , if (List.member b o.params) then
-                name "b"
-              else
-                symbol ""
-            , symbol "::"
-            , keyword "forall"
-            , name "p"
-            , name "f"
-            , symbol "."
-            , symbol "("
-            , classesToSrc o.pClasses p
-            , symbol ","
-            , classesToSrc o.fClasses f
-            , symbol ")"
-            , symbol "⇒"
-            , parenthesize prec.fn (typeToSrc (o.from))
-            , symbol "→"
-            , parenthesize 0 (typeToSrc (o.to))
-            ]
+    Words
+        ([ Name o.name ]
+            ++ (List.map (\(TypeVar v) -> Name v.name) o.params)
+            ++ [ Symbol "::", Keyword "forall", Name "p", Name "f", Symbol ".", Tuple.second (typeToSrc (opticType o)) ]
         )
+
+
+classesToSrc : List TypeClass -> TypeVar -> Node
+classesToSrc cs v =
+    Juxt (List.intersperse (Symbol ", ") (List.map (\c -> constraintToSrc (TypeClassConstraint c v)) cs))
+
+
+{-| Convert to a list of Nodes, where the length of the list is always the same regardless of the
+input. Therefore, when these rows are converted to a table, the corresponding nodes will always
+appear in the same columns.
+-}
+opticToSrcRow : Optic -> List Node
+opticToSrcRow o =
+    [ Name o.name
+    , Name "s"
+    , if (List.member t o.params) then
+        Name "t"
+      else
+        Symbol ""
+    , Name "a"
+    , if (List.member b o.params) then
+        Name "b"
+      else
+        Symbol ""
+    , Symbol "::"
+    , Keyword "forall"
+    , Name "p"
+    , Name "f"
+    , Symbol "."
+    , Symbol "("
+    , classesToSrc o.pClasses p
+    , Symbol ","
+    , classesToSrc o.fClasses f
+    , Symbol ")"
+    , Symbol "⇒"
+      -- Note: applying the "fn" precedence to wrap in parens only if it not a App:
+    , Tuple.second (parenthesize prec.fn Nothing [ typeToSrc (o.from) ])
+    , Symbol "→"
+      -- Note: never surrounding the "to" type with parens, which turns out to be the expected
+      -- rendering, although it's mostly happenstance that it works out here.
+    , Tuple.second (typeToSrc (o.to))
+    ]

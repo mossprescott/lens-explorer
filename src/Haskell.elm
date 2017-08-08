@@ -1,13 +1,27 @@
 module Haskell exposing (..)
 
-import Html exposing (Html, span)
+{-| Haskell types and operations on them. This is not really a full representation of
+Haskell types, but is enough to express the types of parametric functions and typeclass
+constraints.
+
+# AST
+@docs Type, TypeVar, Op, Constraint, TypeClass
+
+# Utilities
+@docs typeToSrc, constraintToSrc, prec, substitute
+-}
+
 import Type exposing (..)
 
 
+{-| A named type variable.
+-}
 type TypeVar
     = TypeVar { name : String }
 
 
+{-| A type class, including references to any type classes it inherits from.
+-}
 type TypeClass
     = TypeClass
         { name : String
@@ -15,15 +29,21 @@ type TypeClass
         }
 
 
+{-| A constraint on a type paramater.
+-}
 type Constraint
     = TypeClassConstraint TypeClass TypeVar
     | Equivalent Type TypeVar
 
 
+{-| A (type-level) operator; that is, an infix type constructor such as `->`.
+-}
 type Op
     = Op { symbol : String }
 
 
+{-| A Haskell type.
+-}
 type Type
     = Var TypeVar
     | App Type Type
@@ -33,6 +53,9 @@ type Type
     | Constrained (List Constraint) Type
 
 
+{-| Eliminate one or more type variables by substituting a type expression for each
+occurence.
+-}
 substitute : List ( TypeVar, Type ) -> Type -> Type
 substitute pairs t =
     let
@@ -62,18 +85,9 @@ substitute pairs t =
                 Constrained cs (substitute pairs t1)
 
 
-parenthesize : Precedence -> ( Precedence, Html msg ) -> Html msg
-parenthesize outer ( inner, n ) =
-    if (inner <= outer) then
-        juxt [ symbol "(", n, symbol ")" ]
-    else
-        n
-
-
-type alias Precedence =
-    Int
-
-
+{-| Precedence table for Haskell expressions, used in [`typeToSrc`](#typeToSrc).
+-}
+prec : { atom : Int, app : Int, infix : Int, fn : Int, constrained : Int, equiv : Int }
 prec =
     { atom = 5
     , app = 4
@@ -84,34 +98,53 @@ prec =
     }
 
 
-typeToSrc : Type -> ( Precedence, Html msg )
+{-| Convert a type to Haskell syntax, along with an indication of the precendence of the outermost
+  expression.
+-}
+typeToSrc : Type -> ( Precedence, Node )
 typeToSrc t =
     case t of
         Var (TypeVar v) ->
-            ( prec.atom, name v.name )
+            ( prec.atom, Name v.name )
 
         App t1 t2 ->
-            ( prec.app, words [ parenthesize prec.app (typeToSrc t1), parenthesize prec.app (typeToSrc t2) ] )
+            parenthesize prec.app
+                Nothing
+                [ typeToSrc t1, typeToSrc t2 ]
 
         -- TODO: make this smarter and use curried `App`s instead
         App2 t1 t2 t3 ->
-            ( prec.app, words [ parenthesize prec.app (typeToSrc t1), parenthesize prec.app (typeToSrc t2), parenthesize prec.app (typeToSrc t3) ] )
+            parenthesize prec.app
+                Nothing
+                [ typeToSrc t1, typeToSrc t2, typeToSrc t3 ]
 
         Infix t1 (Op op) t2 ->
-            ( prec.infix, words [ parenthesize prec.infix (typeToSrc t1), symbol op.symbol, parenthesize prec.infix (typeToSrc t2) ] )
+            parenthesize prec.infix
+                (Just (Symbol op.symbol))
+                [ typeToSrc t1, typeToSrc t2 ]
 
         Fn t1 t2 ->
-            ( prec.fn, words [ parenthesize prec.fn (typeToSrc t1), symbol "→", parenthesize prec.fn (typeToSrc t2) ] )
+            parenthesize prec.fn
+                (Just (Symbol "→"))
+                [ typeToSrc t1, typeToSrc t2 ]
 
         Constrained cs t ->
-            ( prec.constrained, words [ symbol "(", juxt (List.intersperse (symbol ", ") (List.map constraintToSrc cs)), symbol ")", symbol "⇒", parenthesize prec.constrained (typeToSrc t) ] )
+            parenthesize prec.constrained
+                (Just (Symbol "⇒"))
+                [ ( prec.atom
+                  , Juxt ([ Symbol "(" ] ++ List.intersperse (Symbol ", ") (List.map constraintToSrc cs) ++ [ Symbol ")" ])
+                  )
+                , typeToSrc t
+                ]
 
 
-constraintToSrc : Constraint -> Html msg
+{-| Convert a constraint to Haskell syntax.
+-}
+constraintToSrc : Constraint -> Node
 constraintToSrc c =
     case c of
         TypeClassConstraint (TypeClass tc) (TypeVar v) ->
-            words [ name tc.name, name v.name ]
+            Words [ Name tc.name, Name v.name ]
 
-        Equivalent t (TypeVar v) ->
-            words [ name v.name, symbol "~", parenthesize prec.equiv (typeToSrc t) ]
+        Equivalent t v ->
+            Tuple.second (parenthesize prec.infix (Just (Symbol "~")) [ typeToSrc (Var v), typeToSrc t ])

@@ -1,3 +1,2 @@
-elm-make src/main.elm --output=main.html
-elm-make test/LensTest.elm --output=build/LensTest.js
-node build/LensTest.js
+elm-make src/main.elm --docs=documentation.json --output=main.html
+elm-test
