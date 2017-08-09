@@ -223,8 +223,14 @@ opticToSrcRow o =
     , Name "f"
     , Symbol "."
     , Symbol "("
-    , classesToSrc o.pClasses p
-    , Symbol ","
+    , let
+        n =
+            classesToSrc o.pClasses p
+      in
+        if ((List.isEmpty o.pClasses) || (List.isEmpty o.fClasses)) then
+            n
+        else
+            Juxt [ n, Symbol "," ]
     , classesToSrc o.fClasses f
     , Symbol ")"
     , Symbol "⇒"
