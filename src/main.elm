@@ -24,12 +24,13 @@ type alias Model =
     { optics : List Optic
     , aligned : Bool
     , simple : Bool
+    , regular : Bool
     }
 
 
 model : Model
 model =
-    Model allOptics True False
+    Model allOptics True False False
 
 
 
@@ -39,6 +40,7 @@ model =
 type Msg
     = SetAligned Bool
     | SetSimple Bool
+    | SetRegular Bool
 
 
 update : Msg -> Model -> Model
@@ -50,6 +52,9 @@ update msg model =
         SetSimple newValue ->
             { model | simple = newValue }
 
+        SetRegular newValue ->
+            { model | regular = newValue }
+
 
 
 -- VIEW
@@ -58,11 +63,17 @@ update msg model =
 view : Model -> Html Msg
 view model =
     let
-        optics =
-            if model.simple then
-                (List.map simplified model.optics)
+        prepareIf b f x =
+            if b then
+                f x
             else
-                model.optics
+                x
+
+        prepare =
+            prepareIf model.simple (orSame simplify) >> prepareIf model.regular (orSame regular)
+
+        optics =
+            List.map prepare model.optics
 
         renderSpan o =
             Html.p [] [ nodeToHtml (opticToSrc o) ]
@@ -78,6 +89,7 @@ view model =
             , fieldset []
                 [ checkbox (SetAligned (not model.aligned)) "Aligned" model.aligned
                 , checkbox (SetSimple (not model.simple)) "Simple" model.simple
+                , checkbox (SetRegular (not model.regular)) "Regular" model.regular
                 ]
             ]
 

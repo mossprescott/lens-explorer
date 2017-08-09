@@ -162,9 +162,28 @@ simplify o =
             Nothing
 
 
-simplified : Optic -> Optic
-simplified o =
-    Maybe.withDefault o (simplify o)
+orSame : (a -> Maybe a) -> a -> a
+orSame f x =
+    Maybe.withDefault x (f x)
+
+
+{-| Replace infix `->` with prefix `(->)` so that function and non-function types look more parallel.
+-}
+regular : Optic -> Maybe Optic
+regular o =
+    let
+        fnToPrefix n =
+            case n of
+                Fn t1 t2 ->
+                    Just (App2 (Prefix (Op { symbol = "→" })) t1 t2)
+
+                _ ->
+                    Nothing
+    in
+        Maybe.map2
+            (\from to -> { o | from = from, to = to })
+            (fnToPrefix o.from)
+            (fnToPrefix o.to)
 
 
 opticToSrc : Optic -> Node

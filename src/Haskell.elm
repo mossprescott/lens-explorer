@@ -48,8 +48,9 @@ type Type
     = Var TypeVar
     | App Type Type
     | App2 Type Type Type
-    | Infix Type Op Type
+      --| Infix Type Op Type
     | Fn Type Type
+    | Prefix Op
     | Constrained (List Constraint) Type
 
 
@@ -75,11 +76,13 @@ substitute pairs t =
             ( Nothing, App2 t1 t2 t3 ) ->
                 App2 (substitute pairs t1) (substitute pairs t2) (substitute pairs t3)
 
-            ( Nothing, Infix t1 op t2 ) ->
-                Infix (substitute pairs t1) op (substitute pairs t2)
-
+            --( Nothing, Infix t1 op t2 ) ->
+            --    Infix (substitute pairs t1) op (substitute pairs t2)
             ( Nothing, Fn t1 t2 ) ->
                 Fn (substitute pairs t1) (substitute pairs t2)
+
+            ( Nothing, Prefix op ) ->
+                t
 
             ( Nothing, Constrained cs t1 ) ->
                 Constrained cs (substitute pairs t1)
@@ -118,15 +121,19 @@ typeToSrc t =
                 Nothing
                 [ typeToSrc t1, typeToSrc t2, typeToSrc t3 ]
 
-        Infix t1 (Op op) t2 ->
-            parenthesize prec.infix
-                (Just (Symbol op.symbol))
-                [ typeToSrc t1, typeToSrc t2 ]
-
+        {-
+           Infix t1 (Op op) t2 ->
+               parenthesize prec.infix
+                   (Just (Symbol op.symbol))
+                   [ typeToSrc t1, typeToSrc t2 ]
+        -}
         Fn t1 t2 ->
             parenthesize prec.fn
                 (Just (Symbol "→"))
                 [ typeToSrc t1, typeToSrc t2 ]
+
+        Prefix (Op op) ->
+            ( prec.atom, Juxt [ Symbol "(", Symbol op.symbol, Symbol ")" ] )
 
         Constrained cs t ->
             parenthesize prec.constrained
