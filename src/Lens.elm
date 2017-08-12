@@ -89,8 +89,8 @@ iso =
         [ s, t, a, b ]
         [ profunctor ]
         [ functor ]
-        (App2 (Var p) (Var a) (App (Var f) (Var b)))
-        (App2 (Var p) (Var s) (App (Var f) (Var t)))
+        (App (App (Var p) (Var a)) (App (Var f) (Var b)))
+        (App (App (Var p) (Var s)) (App (Var f) (Var t)))
 
 
 prism =
@@ -98,8 +98,8 @@ prism =
         [ s, t, a, b ]
         [ choice ]
         [ applicative ]
-        (App2 (Var p) (Var a) (App (Var f) (Var b)))
-        (App2 (Var p) (Var s) (App (Var f) (Var t)))
+        (App (App (Var p) (Var a)) (App (Var f) (Var b)))
+        (App (App (Var p) (Var s)) (App (Var f) (Var t)))
 
 
 traversal =
@@ -175,7 +175,7 @@ regular o =
         fnToPrefix n =
             case n of
                 Fn t1 t2 ->
-                    Just (App2 (Prefix (Op { symbol = "→" })) t1 t2)
+                    Just (App (App (Prefix (Op { symbol = "→" })) t1) t2)
 
                 _ ->
                     Nothing

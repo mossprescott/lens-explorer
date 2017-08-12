@@ -73,3 +73,22 @@ nodeToHtml n =
 
             Juxt ns ->
                 span [] (List.map nodeToHtml ns)
+
+
+nodeToString : Node -> String
+nodeToString n =
+    case n of
+        Keyword str ->
+            str
+
+        Name str ->
+            str
+
+        Symbol str ->
+            str
+
+        Words ns ->
+            String.join " " (List.map nodeToString ns)
+
+        Juxt ns ->
+            String.join "" (List.map nodeToString ns)

@@ -45,9 +45,9 @@ type Op
 {-| A Haskell type.
 -}
 type Type
-    = Var TypeVar
+    = Unit
+    | Var TypeVar
     | App Type Type
-    | App2 Type Type Type
       --| Infix Type Op Type
     | Fn Type Type
     | Prefix Op
@@ -67,14 +67,14 @@ substitute pairs t =
             ( Just ( _, u ), _ ) ->
                 u
 
+            ( Nothing, Unit ) ->
+                t
+
             ( Nothing, Var _ ) ->
                 t
 
             ( Nothing, App t1 t2 ) ->
                 App (substitute pairs t1) (substitute pairs t2)
-
-            ( Nothing, App2 t1 t2 t3 ) ->
-                App2 (substitute pairs t1) (substitute pairs t2) (substitute pairs t3)
 
             --( Nothing, Infix t1 op t2 ) ->
             --    Infix (substitute pairs t1) op (substitute pairs t2)
@@ -107,19 +107,25 @@ prec =
 typeToSrc : Type -> ( Precedence, Node )
 typeToSrc t =
     case t of
+        Unit ->
+            ( prec.atom, Symbol "()" )
+
         Var (TypeVar v) ->
             ( prec.atom, Name v.name )
 
         App t1 t2 ->
-            parenthesize prec.app
-                Nothing
-                [ typeToSrc t1, typeToSrc t2 ]
+            let
+                -- Note: app is left-associative, so only the second argument needs parens if it is another app
+                ( p, n ) =
+                    typeToSrc t2
 
-        -- TODO: make this smarter and use curried `App`s instead
-        App2 t1 t2 t3 ->
-            parenthesize prec.app
-                Nothing
-                [ typeToSrc t1, typeToSrc t2, typeToSrc t3 ]
+                n2 =
+                    if (p <= prec.app) then
+                        Juxt [ Symbol "(", n, Symbol ")" ]
+                    else
+                        n
+            in
+                ( prec.app, Words [ Tuple.second (typeToSrc t1), n2 ] )
 
         {-
            Infix t1 (Op op) t2 ->
