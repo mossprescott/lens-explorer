@@ -4,6 +4,7 @@ import Html exposing (Html, div, fieldset, input, label, table, td, tr, text)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import String
+import Functions exposing (fnToSrc, functions)
 import Lens exposing (..)
 import Type exposing (nodeToHtml)
 
@@ -91,6 +92,7 @@ view model =
                 , checkbox (SetSimple (not model.simple)) "Simple" model.simple
                 , checkbox (SetRegular (not model.regular)) "Regular" model.regular
                 ]
+            , div [] (List.map (div [] << List.singleton << nodeToHtml << fnToSrc) functions)
             ]
 
 

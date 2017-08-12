@@ -2,6 +2,7 @@ module Functions exposing (..)
 
 import Haskell exposing (..)
 import Lens exposing (s, t, a, b, applicative)
+import Type exposing (Node(Name, Symbol, Words))
 
 
 monad =
@@ -71,3 +72,8 @@ functions =
             (Fn (app (aliasRef aSetter) [ (Var s), (Var t), (Var a), (Var b) ]) (Fn (Var b) (App (Var m) Unit)))
       )
     ]
+
+
+fnToSrc : ( String, Type ) -> Node
+fnToSrc ( name, typ ) =
+    Words [ Name name, Symbol "::", Tuple.second (typeToSrc typ) ]
