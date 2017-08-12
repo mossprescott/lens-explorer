@@ -1,0 +1,178 @@
+[
+  {
+    "name": "Haskell",
+    "comment": " Haskell types and operations on them. This is not really a full representation of\nHaskell types, but is enough to express the types of parametric functions and typeclass\nconstraints.\n\n# Basics\n@docs Type, TypeVar, Op, Constraint, TypeConstructor, TypeClass, app\n\n# Aliases\n@docs TypeAlias, aliasRef\n\n# Utilities\n@docs typeToSrc, constraintToSrc, prec, substitute\n",
+    "aliases": [],
+    "types": [
+      {
+        "name": "Constraint",
+        "comment": " A constraint on a type paramater.\n",
+        "args": [],
+        "cases": [
+          [
+            "TypeClassConstraint",
+            [
+              "Haskell.TypeClass",
+              "List Haskell.TypeVar"
+            ]
+          ],
+          [
+            "Equivalent",
+            [
+              "Haskell.Type",
+              "Haskell.TypeVar"
+            ]
+          ]
+        ]
+      },
+      {
+        "name": "Op",
+        "comment": " A (type-level) operator; that is, an infix type constructor such as `->`.\n",
+        "args": [],
+        "cases": [
+          [
+            "Op",
+            [
+              "{ symbol : String }"
+            ]
+          ]
+        ]
+      },
+      {
+        "name": "Type",
+        "comment": " A Haskell type.\n",
+        "args": [],
+        "cases": [
+          [
+            "Unit",
+            []
+          ],
+          [
+            "Var",
+            [
+              "Haskell.TypeVar"
+            ]
+          ],
+          [
+            "Constr",
+            [
+              "Haskell.TypeConstructor"
+            ]
+          ],
+          [
+            "App",
+            [
+              "Haskell.Type",
+              "Haskell.Type"
+            ]
+          ],
+          [
+            "Fn",
+            [
+              "Haskell.Type",
+              "Haskell.Type"
+            ]
+          ],
+          [
+            "Prefix",
+            [
+              "Haskell.Op"
+            ]
+          ],
+          [
+            "Constrained",
+            [
+              "List Haskell.Constraint",
+              "Haskell.Type"
+            ]
+          ]
+        ]
+      },
+      {
+        "name": "TypeAlias",
+        "comment": " A type alias is a sort of type-level macro that can be expanded at any time.\n",
+        "args": [],
+        "cases": [
+          [
+            "TypeAlias",
+            [
+              "{ name : String, args : List Haskell.TypeVar, rhs : Haskell.Type }"
+            ]
+          ]
+        ]
+      },
+      {
+        "name": "TypeClass",
+        "comment": " A type class, including references to any type classes it inherits from.\n",
+        "args": [],
+        "cases": [
+          [
+            "TypeClass",
+            [
+              "{ name : String, supers : List Haskell.TypeClass }"
+            ]
+          ]
+        ]
+      },
+      {
+        "name": "TypeConstructor",
+        "comment": " A type constructor.\n",
+        "args": [],
+        "cases": [
+          [
+            "TypeConstructor",
+            [
+              "{ name : String }"
+            ]
+          ]
+        ]
+      },
+      {
+        "name": "TypeVar",
+        "comment": " A named type variable.\n",
+        "args": [],
+        "cases": [
+          [
+            "TypeVar",
+            [
+              "{ name : String }"
+            ]
+          ]
+        ]
+      }
+    ],
+    "values": [
+      {
+        "name": "aliasRef",
+        "comment": " When an alias is referenced, it looks like a type constructor.\n",
+        "type": "Haskell.TypeAlias -> Haskell.Type"
+      },
+      {
+        "name": "app",
+        "comment": " Nested Apps applying a curried fn to multiple args.\n",
+        "type": "Haskell.Type -> List Haskell.Type -> Haskell.Type"
+      },
+      {
+        "name": "constraintToSrc",
+        "comment": " Convert a constraint to Haskell syntax.\n",
+        "type": "Haskell.Constraint -> Type.Node"
+      },
+      {
+        "name": "prec",
+        "comment": " Precedence table for Haskell expressions, used in [`typeToSrc`](#typeToSrc).\n",
+        "type": "{ atom : Int , app : Int , infix : Int , fn : Int , constrained : Int , equiv : Int }"
+      },
+      {
+        "name": "substitute",
+        "comment": " Eliminate one or more type variables by substituting a type expression for each\noccurence.\n",
+        "type": "List ( Haskell.TypeVar, Haskell.Type ) -> Haskell.Type -> Haskell.Type"
+      },
+      {
+        "name": "typeToSrc",
+        "comment": " Convert a type to Haskell syntax, along with an indication of the precendence of the outermost\n  expression.\n",
+        "type": "Haskell.Type -> ( Type.Precedence, Type.Node )"
+      }
+    ],
+    "generated-with-elm-version": "0.18.0"
+  }
+]

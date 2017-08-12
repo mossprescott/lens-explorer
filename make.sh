@@ -1,2 +1,2 @@
-elm-make src/main.elm --docs=documentation.json --output=main.html
+elm-make src/main.elm --docs=build/documentation.json --output=build/index.html
 elm-test
