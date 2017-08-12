@@ -18,8 +18,11 @@ sourceTests =
             Var (TypeVar { name = "b" })
     in
         describe "Source forms"
-            [ test "curried app needs no parens" <|
+            [ test "nested Apps" <|
                 \() ->
-                    (nodeToString << Tuple.second << typeToSrc) (App (App f a) b)
+                    app f [ a, b ] |> Expect.equal (App (App f a) b)
+            , test "curried app needs no parens" <|
+                \() ->
+                    (nodeToString << Tuple.second << typeToSrc) (app f [ a, b ])
                         |> Expect.equal "f a b"
             ]

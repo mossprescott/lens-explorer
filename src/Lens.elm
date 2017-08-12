@@ -89,8 +89,8 @@ iso =
         [ s, t, a, b ]
         [ profunctor ]
         [ functor ]
-        (App (App (Var p) (Var a)) (App (Var f) (Var b)))
-        (App (App (Var p) (Var s)) (App (Var f) (Var t)))
+        (app (Var p) [ (Var a), (App (Var f) (Var b)) ])
+        (app (Var p) [ (Var s), (App (Var f) (Var t)) ])
 
 
 prism =
@@ -98,8 +98,8 @@ prism =
         [ s, t, a, b ]
         [ choice ]
         [ applicative ]
-        (App (App (Var p) (Var a)) (App (Var f) (Var b)))
-        (App (App (Var p) (Var s)) (App (Var f) (Var t)))
+        (app (Var p) [ (Var a), (App (Var f) (Var b)) ])
+        (app (Var p) [ (Var s), (App (Var f) (Var t)) ])
 
 
 traversal =
@@ -135,7 +135,7 @@ allOptics =
 
 opticType : Optic -> Type
 opticType o =
-    Constrained (List.map (\c -> TypeClassConstraint c p) o.pClasses ++ List.map (\c -> TypeClassConstraint c f) o.fClasses) (Fn o.from o.to)
+    Constrained (List.map (\c -> TypeClassConstraint c [ p ]) o.pClasses ++ List.map (\c -> TypeClassConstraint c [ f ]) o.fClasses) (Fn o.from o.to)
 
 
 {-| Reduce an optic to its "Simple" or "primed" form, if possible, by replacing `t`s and `b`s with
@@ -175,7 +175,7 @@ regular o =
         fnToPrefix n =
             case n of
                 Fn t1 t2 ->
-                    Just (App (App (Prefix (Op { symbol = "→" })) t1) t2)
+                    Just (app (Prefix (Op { symbol = "→" })) [ t1, t2 ])
 
                 _ ->
                     Nothing
@@ -197,7 +197,7 @@ opticToSrc o =
 
 classesToSrc : List TypeClass -> TypeVar -> Node
 classesToSrc cs v =
-    Juxt (List.intersperse (Symbol ", ") (List.map (\c -> constraintToSrc (TypeClassConstraint c v)) cs))
+    Juxt (List.intersperse (Symbol ", ") (List.map (\c -> constraintToSrc (TypeClassConstraint c [ v ])) cs))
 
 
 {-| Convert to a list of Nodes, where the length of the list is always the same regardless of the

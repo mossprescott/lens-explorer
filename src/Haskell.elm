@@ -4,8 +4,11 @@ module Haskell exposing (..)
 Haskell types, but is enough to express the types of parametric functions and typeclass
 constraints.
 
-# AST
-@docs Type, TypeVar, Op, Constraint, TypeClass
+# Basics
+@docs Type, TypeVar, Op, Constraint, TypeConstructor, TypeClass, app
+
+# Aliases
+@docs TypeAlias, aliasRef
 
 # Utilities
 @docs typeToSrc, constraintToSrc, prec, substitute
@@ -32,7 +35,7 @@ type TypeClass
 {-| A constraint on a type paramater.
 -}
 type Constraint
-    = TypeClassConstraint TypeClass TypeVar
+    = TypeClassConstraint TypeClass (List TypeVar)
     | Equivalent Type TypeVar
 
 
@@ -42,16 +45,52 @@ type Op
     = Op { symbol : String }
 
 
+{-| A type constructor.
+-}
+type TypeConstructor
+    = TypeConstructor { name : String }
+
+
 {-| A Haskell type.
 -}
 type Type
     = Unit
     | Var TypeVar
+    | Constr TypeConstructor
     | App Type Type
       --| Infix Type Op Type
     | Fn Type Type
     | Prefix Op
     | Constrained (List Constraint) Type
+
+
+{-| Nested Apps applying a curried fn to multiple args.
+-}
+app : Type -> List Type -> Type
+app f ts =
+    case ts of
+        [] ->
+            f
+
+        t :: more ->
+            app (App f t) more
+
+
+{-| A type alias is a sort of type-level macro that can be expanded at any time.
+-}
+type TypeAlias
+    = TypeAlias
+        { name : String
+        , args : List TypeVar
+        , rhs : Type
+        }
+
+
+{-| When an alias is referenced, it looks like a type constructor.
+-}
+aliasRef : TypeAlias -> Type
+aliasRef (TypeAlias alias) =
+    Constr (TypeConstructor { name = alias.name })
 
 
 {-| Eliminate one or more type variables by substituting a type expression for each
@@ -71,6 +110,9 @@ substitute pairs t =
                 t
 
             ( Nothing, Var _ ) ->
+                t
+
+            ( Nothing, Constr _ ) ->
                 t
 
             ( Nothing, App t1 t2 ) ->
@@ -112,6 +154,9 @@ typeToSrc t =
 
         Var (TypeVar v) ->
             ( prec.atom, Name v.name )
+
+        Constr (TypeConstructor c) ->
+            ( prec.atom, Name c.name )
 
         App t1 t2 ->
             let
@@ -156,8 +201,8 @@ typeToSrc t =
 constraintToSrc : Constraint -> Node
 constraintToSrc c =
     case c of
-        TypeClassConstraint (TypeClass tc) (TypeVar v) ->
-            Words [ Name tc.name, Name v.name ]
+        TypeClassConstraint (TypeClass tc) vs ->
+            Words ([ Name tc.name ] ++ List.map (Name << (\(TypeVar v) -> v.name)) vs)
 
         Equivalent t v ->
             Tuple.second (parenthesize prec.infix (Just (Symbol "~")) [ typeToSrc (Var v), typeToSrc t ])

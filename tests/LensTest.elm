@@ -13,7 +13,7 @@ typeTests =
             \() ->
                 opticType lens
                     |> Expect.equal
-                        (Constrained [ TypeClassConstraint functor f ]
+                        (Constrained [ TypeClassConstraint functor [ f ] ]
                             (Fn
                                 (Fn (Var a) (App (Var f) (Var b)))
                                 (Fn (Var s) (App (Var f) (Var t)))
@@ -23,7 +23,7 @@ typeTests =
             \() ->
                 opticType iso
                     |> Expect.equal
-                        (Constrained [ TypeClassConstraint profunctor p, TypeClassConstraint functor f ]
+                        (Constrained [ TypeClassConstraint profunctor [ p ], TypeClassConstraint functor [ f ] ]
                             (Fn
                                 (App (App (Var p) (Var a)) (App (Var f) (Var b)))
                                 (App (App (Var p) (Var s)) (App (Var f) (Var t)))
@@ -33,7 +33,7 @@ typeTests =
             \() ->
                 opticType prism
                     |> Expect.equal
-                        (Constrained [ TypeClassConstraint choice p, TypeClassConstraint applicative f ]
+                        (Constrained [ TypeClassConstraint choice [ p ], TypeClassConstraint applicative [ f ] ]
                             (Fn
                                 (App (App (Var p) (Var a)) (App (Var f) (Var b)))
                                 (App (App (Var p) (Var s)) (App (Var f) (Var t)))
@@ -43,7 +43,7 @@ typeTests =
             \() ->
                 opticType traversal
                     |> Expect.equal
-                        (Constrained [ TypeClassConstraint applicative f ]
+                        (Constrained [ TypeClassConstraint applicative [ f ] ]
                             (Fn
                                 (Fn (Var a) (App (Var f) (Var b)))
                                 (Fn (Var s) (App (Var f) (Var t)))
@@ -53,7 +53,7 @@ typeTests =
             \() ->
                 opticType fold
                     |> Expect.equal
-                        (Constrained [ TypeClassConstraint contravariant f, TypeClassConstraint applicative f ]
+                        (Constrained [ TypeClassConstraint contravariant [ f ], TypeClassConstraint applicative [ f ] ]
                             (Fn
                                 (Fn (Var a) (App (Var f) (Var a)))
                                 (Fn (Var s) (App (Var f) (Var s)))
@@ -63,7 +63,7 @@ typeTests =
             \() ->
                 opticType fold1
                     |> Expect.equal
-                        (Constrained [ TypeClassConstraint contravariant f, TypeClassConstraint apply f ]
+                        (Constrained [ TypeClassConstraint contravariant [ f ], TypeClassConstraint apply [ f ] ]
                             (Fn
                                 (Fn (Var a) (App (Var f) (Var a)))
                                 (Fn (Var s) (App (Var f) (Var s)))
