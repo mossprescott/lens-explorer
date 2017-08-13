@@ -62,7 +62,7 @@ functions =
             (Fn (app (aliasRef getting) [ (Var a), (Var s), (Var a) ]) (App (Var m) (Var a)))
       )
     , ( "set"
-      , Fn (app (aliasRef aSetter) [ (Var s), (Var t), (Var a), (Var b) ]) (Fn (Var s) (Var t))
+      , Fn (app (aliasRef aSetter) [ (Var s), (Var t), (Var a), (Var b) ]) (Fn (Var s) (Fn (Var s) (Var t)))
       )
     , ( "over"
       , Fn (app (aliasRef aSetter) [ (Var s), (Var t), (Var a), (Var b) ]) (Fn (Fn (Var a) (Var b)) (Fn (Var s) (Var t)))

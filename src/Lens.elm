@@ -235,7 +235,7 @@ opticToSrcRow o =
     , Symbol ")"
     , Symbol "⇒"
       -- Note: applying the "fn" precedence to wrap in parens only if it not a App:
-    , Tuple.second (parenthesize prec.fn Nothing [ typeToSrc (o.from) ])
+    , parenthesizeOne prec.fn (typeToSrc (o.from))
     , Symbol "→"
       -- Note: never surrounding the "to" type with parens, which turns out to be the expected
       -- rendering, although it's mostly happenstance that it works out here.

@@ -22,23 +22,25 @@ type alias Precedence =
     Int
 
 
-{-| Construct a Words node from a sequence of contained nodes, given the precedence of the
-outer expression and each inner sub-expressions. Parens are inserted wherever the embedded
-expression has lower (or equal) precedence.
--}
-parenthesize : Precedence -> Maybe Node -> List ( Precedence, Node ) -> ( Precedence, Node )
-parenthesize outer sepOpt pairs =
+parenthesize_ :
+    (Precedence -> Precedence -> Bool)
+    -> (Precedence -> Precedence -> Bool)
+    -> Precedence
+    -> Maybe Node
+    -> ( Precedence, Node )
+    -> ( Precedence, Node )
+    -> ( Precedence, Node )
+parenthesize_ cmp1 cmp2 pOuter sepOpt p1 p2 =
     let
-        parens outer ( inner, n ) =
-            if (inner <= outer) then
-                Juxt [ Symbol "(", n, Symbol ")" ]
-            else
-                n
+        p n =
+            Juxt [ Symbol "(", n, Symbol ")" ]
 
         pPairs =
-            List.map (parens outer) pairs
+            [ parenthesizeOne_ cmp1 pOuter p1
+            , parenthesizeOne_ cmp2 pOuter p2
+            ]
     in
-        ( outer
+        ( pOuter
         , Words
             (case sepOpt of
                 Nothing ->
@@ -48,6 +50,38 @@ parenthesize outer sepOpt pairs =
                     List.intersperse sep pPairs
             )
         )
+
+
+parenthesizeOne_ : (Precedence -> Precedence -> Bool) -> Precedence -> ( Precedence, Node ) -> Node
+parenthesizeOne_ cmp outer ( inner, n ) =
+    if (cmp inner outer) then
+        Juxt [ Symbol "(", n, Symbol ")" ]
+    else
+        n
+
+
+parenthesizeOne : Precedence -> ( Precedence, Node ) -> Node
+parenthesizeOne =
+    parenthesizeOne_ (<=)
+
+
+{-| Construct a Words node from a sequence of contained nodes, given the precedence of the
+outer expression and each inner sub-expressions. Parens are inserted wherever the embedded
+expression has lower (or equal) precedence.
+-}
+parenthesize : Precedence -> Maybe Node -> ( Precedence, Node ) -> ( Precedence, Node ) -> ( Precedence, Node )
+parenthesize =
+    parenthesize_ (<=) (<=)
+
+
+parenthesizeLeftAssoc : Precedence -> Maybe Node -> ( Precedence, Node ) -> ( Precedence, Node ) -> ( Precedence, Node )
+parenthesizeLeftAssoc =
+    parenthesize_ (<) (<=)
+
+
+parenthesizeRightAssoc : Precedence -> Maybe Node -> ( Precedence, Node ) -> ( Precedence, Node ) -> ( Precedence, Node )
+parenthesizeRightAssoc =
+    parenthesize_ (<=) (<)
 
 
 {-| Translate AST nodes into styled HTML nodes.

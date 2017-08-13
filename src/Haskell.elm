@@ -159,18 +159,10 @@ typeToSrc t =
             ( prec.atom, Name c.name )
 
         App t1 t2 ->
-            let
-                -- Note: app is left-associative, so only the second argument needs parens if it is another app
-                ( p, n ) =
-                    typeToSrc t2
-
-                n2 =
-                    if (p <= prec.app) then
-                        Juxt [ Symbol "(", n, Symbol ")" ]
-                    else
-                        n
-            in
-                ( prec.app, Words [ Tuple.second (typeToSrc t1), n2 ] )
+            parenthesizeLeftAssoc prec.app
+                Nothing
+                (typeToSrc t1)
+                (typeToSrc t2)
 
         {-
            Infix t1 (Op op) t2 ->
@@ -179,9 +171,10 @@ typeToSrc t =
                    [ typeToSrc t1, typeToSrc t2 ]
         -}
         Fn t1 t2 ->
-            parenthesize prec.fn
+            parenthesizeRightAssoc prec.fn
                 (Just (Symbol "→"))
-                [ typeToSrc t1, typeToSrc t2 ]
+                (typeToSrc t1)
+                (typeToSrc t2)
 
         Prefix (Op op) ->
             ( prec.atom, Juxt [ Symbol "(", Symbol op.symbol, Symbol ")" ] )
@@ -189,11 +182,10 @@ typeToSrc t =
         Constrained cs t ->
             parenthesize prec.constrained
                 (Just (Symbol "⇒"))
-                [ ( prec.atom
-                  , Juxt ([ Symbol "(" ] ++ List.intersperse (Symbol ", ") (List.map constraintToSrc cs) ++ [ Symbol ")" ])
-                  )
-                , typeToSrc t
-                ]
+                ( prec.atom
+                , Juxt ([ Symbol "(" ] ++ List.intersperse (Symbol ", ") (List.map constraintToSrc cs) ++ [ Symbol ")" ])
+                )
+                (typeToSrc t)
 
 
 {-| Convert a constraint to Haskell syntax.
@@ -205,4 +197,4 @@ constraintToSrc c =
             Words ([ Name tc.name ] ++ List.map (Name << (\(TypeVar v) -> v.name)) vs)
 
         Equivalent t v ->
-            Tuple.second (parenthesize prec.infix (Just (Symbol "~")) [ typeToSrc (Var v), typeToSrc t ])
+            Tuple.second (parenthesize prec.infix (Just (Symbol "~")) (typeToSrc (Var v)) (typeToSrc t))
