@@ -174,5 +174,89 @@
       }
     ],
     "generated-with-elm-version": "0.18.0"
+  },
+  {
+    "name": "Type",
+    "comment": " This module provides a simple AST for Haskell type declarations and conversion to\nHTML markup.\n\n# AST\n@docs Node, Precedence\n\n# Rendering\n@docs nodeToHtml, nodeToString\n\n# Helpers\n@docs parenthesize, parenthesizeLeftAssoc, parenthesizeRightAssoc, parenthesizeOne\n",
+    "aliases": [
+      {
+        "name": "Precedence",
+        "comment": " Precendence levels for parenthesization.\n",
+        "args": [],
+        "type": "Int"
+      }
+    ],
+    "types": [
+      {
+        "name": "Node",
+        "comment": " Simple AST for source code.\n",
+        "args": [],
+        "cases": [
+          [
+            "Keyword",
+            [
+              "String"
+            ]
+          ],
+          [
+            "Name",
+            [
+              "String"
+            ]
+          ],
+          [
+            "Symbol",
+            [
+              "String"
+            ]
+          ],
+          [
+            "Words",
+            [
+              "List Type.Node"
+            ]
+          ],
+          [
+            "Juxt",
+            [
+              "List Type.Node"
+            ]
+          ]
+        ]
+      }
+    ],
+    "values": [
+      {
+        "name": "nodeToHtml",
+        "comment": " Translate AST nodes into styled HTML nodes.\n",
+        "type": "Type.Node -> Html.Html msg"
+      },
+      {
+        "name": "nodeToString",
+        "comment": " Translate AST nodes into a String. Just flattens and strips the constructors.\n",
+        "type": "Type.Node -> String"
+      },
+      {
+        "name": "parenthesize",
+        "comment": " Construct a Words node from a sequence of contained nodes, given the precedence of the\nouter expression and each inner sub-expression. Parens are inserted wherever the embedded\nexpression has lower (or equal) precedence.\n",
+        "type": "Type.Precedence -> Maybe.Maybe Type.Node -> ( Type.Precedence, Type.Node ) -> ( Type.Precedence, Type.Node ) -> ( Type.Precedence, Type.Node )"
+      },
+      {
+        "name": "parenthesizeLeftAssoc",
+        "comment": " Insert parens as need for a left-associative operator; that is, parens are not needed\naround the left expression if it has the same precendence as the outer expression.\n",
+        "type": "Type.Precedence -> Maybe.Maybe Type.Node -> ( Type.Precedence, Type.Node ) -> ( Type.Precedence, Type.Node ) -> ( Type.Precedence, Type.Node )"
+      },
+      {
+        "name": "parenthesizeOne",
+        "comment": " Wrap a node in parens if it has lower (or equal) precedence than the outer expression.\n",
+        "type": "Type.Precedence -> ( Type.Precedence, Type.Node ) -> Type.Node"
+      },
+      {
+        "name": "parenthesizeRightAssoc",
+        "comment": " Insert parens as need for a right-associative operator; that is, parens are not needed\naround the right expression if it has the same precendence as the outer expression.\n",
+        "type": "Type.Precedence -> Maybe.Maybe Type.Node -> ( Type.Precedence, Type.Node ) -> ( Type.Precedence, Type.Node ) -> ( Type.Precedence, Type.Node )"
+      }
+    ],
+    "generated-with-elm-version": "0.18.0"
   }
 ]

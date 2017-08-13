@@ -1,7 +1,26 @@
-module Type exposing (..)
+module Type
+    exposing
+        ( Node(Keyword, Name, Symbol, Words, Juxt)
+        , Precedence
+        , parenthesize
+        , parenthesizeLeftAssoc
+        , parenthesizeRightAssoc
+        , parenthesizeOne
+        , nodeToHtml
+        , nodeToString
+        )
 
 {-| This module provides a simple AST for Haskell type declarations and conversion to
 HTML markup.
+
+# AST
+@docs Node, Precedence
+
+# Rendering
+@docs nodeToHtml, nodeToString
+
+# Helpers
+@docs parenthesize, parenthesizeLeftAssoc, parenthesizeRightAssoc, parenthesizeOne
 -}
 
 import Html exposing (Html, p, span, text)
@@ -18,6 +37,8 @@ type Node
     | Juxt (List Node)
 
 
+{-| Precendence levels for parenthesization.
+-}
 type alias Precedence =
     Int
 
@@ -60,13 +81,15 @@ parenthesizeOne_ cmp outer ( inner, n ) =
         n
 
 
+{-| Wrap a node in parens if it has lower (or equal) precedence than the outer expression.
+-}
 parenthesizeOne : Precedence -> ( Precedence, Node ) -> Node
 parenthesizeOne =
     parenthesizeOne_ (<=)
 
 
 {-| Construct a Words node from a sequence of contained nodes, given the precedence of the
-outer expression and each inner sub-expressions. Parens are inserted wherever the embedded
+outer expression and each inner sub-expression. Parens are inserted wherever the embedded
 expression has lower (or equal) precedence.
 -}
 parenthesize : Precedence -> Maybe Node -> ( Precedence, Node ) -> ( Precedence, Node ) -> ( Precedence, Node )
@@ -74,11 +97,17 @@ parenthesize =
     parenthesize_ (<=) (<=)
 
 
+{-| Insert parens as need for a left-associative operator; that is, parens are not needed
+around the left expression if it has the same precendence as the outer expression.
+-}
 parenthesizeLeftAssoc : Precedence -> Maybe Node -> ( Precedence, Node ) -> ( Precedence, Node ) -> ( Precedence, Node )
 parenthesizeLeftAssoc =
     parenthesize_ (<) (<=)
 
 
+{-| Insert parens as need for a right-associative operator; that is, parens are not needed
+around the right expression if it has the same precendence as the outer expression.
+-}
 parenthesizeRightAssoc : Precedence -> Maybe Node -> ( Precedence, Node ) -> ( Precedence, Node ) -> ( Precedence, Node )
 parenthesizeRightAssoc =
     parenthesize_ (<=) (<)
@@ -109,6 +138,8 @@ nodeToHtml n =
                 span [] (List.map nodeToHtml ns)
 
 
+{-| Translate AST nodes into a String. Just flattens and strips the constructors.
+-}
 nodeToString : Node -> String
 nodeToString n =
     case n of
