@@ -1,7 +1,6 @@
 module Lens exposing (..)
 
 import Haskell exposing (..)
-import Html exposing (Html, tr, td)
 import Type exposing (..)
 
 
