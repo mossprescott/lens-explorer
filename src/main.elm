@@ -93,7 +93,8 @@ view model =
               else
                 div [] (List.map renderSpan optics)
             , div []
-                [ Html.p [] [ text "l :: (a -> f a) -> c -> f c" ]
+                [ -- TODO: use composeFns
+                  Html.p [] [ text "l :: (a -> f a) -> c -> f c" ]
                 , Html.p []
                     [ nodeToHtml
                         (Words

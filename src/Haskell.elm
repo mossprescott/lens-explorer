@@ -11,7 +11,7 @@ constraints.
 @docs TypeAlias, aliasRef
 
 # Utilities
-@docs typeToSrc, constraintToSrc, prec, substitute, composeFns
+@docs typeToSrc, constraintToSrc, prec, Substitutions, substitute, composeFns
 -}
 
 import Dict
@@ -95,10 +95,16 @@ aliasRef (TypeAlias alias) =
     Constr (TypeConstructor { name = alias.name })
 
 
-{-| Rewrite one or more type variables by substituting for each occurrence.
-Note: takes a list of pairs because Elm Dicts can't contain arbitrary types.
+{-| A mapping of type variables to be renamed.
+Note: a list of pairs because Elm Dicts' keys can't have arbitrary types.
 -}
-substitute : List ( TypeVar, TypeVar ) -> Type -> Type
+type alias Substitutions =
+    List ( TypeVar, TypeVar )
+
+
+{-| Rewrite one or more type variables by substituting for each occurrence.
+-}
+substitute : Substitutions -> Type -> Type
 substitute pairs t =
     let
         byName =
@@ -143,6 +149,68 @@ substitute pairs t =
 
             Constrained cs t1 ->
                 Constrained cs (substitute pairs t1)
+
+
+{-| Construct a function type by composing two types in the manner of `.`, returning the
+mappng of type names that was done on each side, and the resulting type:
+Rename all type parameters so they're unique,
+unify types and constraints, and finally try to
+rename parameters, so that `*`s become `a`, `b`, etc. and `* -> *`s become `p` and `f`.
+-}
+composeFns : Type -> Type -> Result String ( Substitutions, Substitutions, Type )
+composeFns left right =
+    let
+        vars : Type -> List TypeVar
+        vars typ =
+            let
+                -- Note: can't put TypeVars in a Set(!)
+                loop : Type -> Set String
+                loop t =
+                    case t of
+                        Unit ->
+                            Set.empty
+
+                        Var (TypeVar v) ->
+                            Set.singleton v.name
+
+                        Constr _ ->
+                            Set.empty
+
+                        App t1 t2 ->
+                            Set.union (loop t1) (loop t2)
+
+                        Fn t1 t2 ->
+                            Set.union (loop t1) (loop t2)
+
+                        Prefix _ ->
+                            Set.empty
+
+                        Constrained cs t ->
+                            Set.union (Set.fromList (List.concatMap constrVars cs)) (loop t)
+
+                constrVars c =
+                    case c of
+                        TypeClassConstraint _ vs ->
+                            List.map (\(TypeVar v) -> v.name) vs
+
+                        Equivalent _ _ ->
+                            Debug.crash "unimplemented"
+            in
+                List.map (\n -> TypeVar { name = n }) (Set.toList (loop typ))
+
+        leftVars : Substitutions
+        leftVars =
+            List.indexedMap (\i v -> ( v, TypeVar { name = "l" ++ toString i } )) (vars left)
+
+        rightVars : Substitutions
+        rightVars =
+            List.indexedMap (\i v -> ( v, TypeVar { name = "r" ++ toString (i + List.length leftVars) } )) (vars right)
+
+        -- TODO
+        result =
+            Unit
+    in
+        Ok ( leftVars, rightVars, result )
 
 
 {-| Precedence table for Haskell expressions, used in [`typeToSrc`](#typeToSrc).
