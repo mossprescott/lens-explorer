@@ -137,6 +137,19 @@ opticType o =
     Constrained (List.map (\c -> TypeClassConstraint c [ p ]) o.pClasses ++ List.map (\c -> TypeClassConstraint c [ f ]) o.fClasses) (Fn o.from o.to)
 
 
+{-| (Attempt to) compose two optics, producing a version of each with renamed
+parameters and one representing the composition.
+-}
+compose : Optic -> Optic -> ( Optic, Optic, Optic )
+compose left right =
+    Debug.crash "not implemented"
+
+
+composeMany : List Optic -> ( List Optic, Optic )
+composeMany optics =
+    Debug.crash "not implemented"
+
+
 {-| Reduce an optic to its "Simple" or "primed" form, if possible, by replacing `t`s and `b`s with
 `s`s and `a`s.
 -}

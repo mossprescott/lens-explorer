@@ -79,3 +79,44 @@ sourceTests =
                 (nodeToString << opticToSrc) iso
                     |> Expect.equal "Iso s t a b :: forall p f . (Profunctor p, Functor f) ⇒ p a (f b) → p s (f t)"
         ]
+
+
+composeTests =
+    let
+        x =
+            TypeVar "x"
+
+        y =
+            TypeVar "y"
+
+        z =
+            TypeVar "z"
+    in
+        describe "compose"
+            [ test "two simple lenses" <|
+                \() ->
+                    Maybe.map2 compose (simplify lens) (simplify lens)
+                        |> Expect.equal
+                            (Just
+                                -- Note: these all just substitutions on simpleLens
+                                ( Optic "Lens'"
+                                    [ x, y ]
+                                    []
+                                    [ functor ]
+                                    (Fn (Var y) (App (Var f) (Var y)))
+                                    (Fn (Var x) (App (Var f) (Var x)))
+                                , Optic "Lens'"
+                                    [ y, z ]
+                                    []
+                                    [ functor ]
+                                    (Fn (Var z) (App (Var f) (Var z)))
+                                    (Fn (Var y) (App (Var f) (Var y)))
+                                , Optic ""
+                                    [ s, a ]
+                                    []
+                                    [ functor ]
+                                    (Fn (Var z) (App (Var f) (Var z)))
+                                    (Fn (Var x) (App (Var f) (Var x)))
+                                )
+                            )
+            ]
