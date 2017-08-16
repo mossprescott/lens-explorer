@@ -11,9 +11,11 @@ constraints.
 @docs TypeAlias, aliasRef
 
 # Utilities
-@docs typeToSrc, constraintToSrc, prec, substitute
+@docs typeToSrc, constraintToSrc, prec, substitute, composeFns
 -}
 
+import Dict
+import Set exposing (Set)
 import Type exposing (..)
 
 
@@ -93,40 +95,53 @@ aliasRef (TypeAlias alias) =
     Constr (TypeConstructor { name = alias.name })
 
 
-{-| Eliminate one or more type variables by substituting a type expression for each
-occurence.
+{-| Rewrite one or more type variables by substituting for each occurrence.
+Note: takes a list of pairs because Elm Dicts can't contain arbitrary types.
 -}
-substitute : List ( TypeVar, Type ) -> Type -> Type
+substitute : List ( TypeVar, TypeVar ) -> Type -> Type
 substitute pairs t =
     let
-        match =
-            List.head (List.filter (\( v, _ ) -> Var v == t) pairs)
+        byName =
+            Dict.fromList (List.map (Tuple.mapFirst (\(TypeVar v) -> v.name)) pairs)
+
+        newVar (TypeVar v) =
+            case (Dict.get v.name byName) of
+                Just tv ->
+                    tv
+
+                Nothing ->
+                    TypeVar v
+
+        subConstr c =
+            case c of
+                TypeClassConstraint tc vs ->
+                    TypeClassConstraint tc (List.map newVar vs)
+
+                Equivalent _ _ ->
+                    Debug.crash "unimplemented"
     in
-        case ( match, t ) of
-            ( Just ( _, u ), _ ) ->
-                u
-
-            ( Nothing, Unit ) ->
+        case t of
+            Unit ->
                 t
 
-            ( Nothing, Var _ ) ->
+            Var v ->
+                Var (newVar v)
+
+            Constr _ ->
                 t
 
-            ( Nothing, Constr _ ) ->
-                t
-
-            ( Nothing, App t1 t2 ) ->
+            App t1 t2 ->
                 App (substitute pairs t1) (substitute pairs t2)
 
-            --( Nothing, Infix t1 op t2 ) ->
+            --Infix t1 op t2 ->
             --    Infix (substitute pairs t1) op (substitute pairs t2)
-            ( Nothing, Fn t1 t2 ) ->
+            Fn t1 t2 ->
                 Fn (substitute pairs t1) (substitute pairs t2)
 
-            ( Nothing, Prefix op ) ->
+            Prefix op ->
                 t
 
-            ( Nothing, Constrained cs t1 ) ->
+            Constrained cs t1 ->
                 Constrained cs (substitute pairs t1)
 
 

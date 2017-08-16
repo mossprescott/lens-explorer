@@ -147,7 +147,7 @@ simplify o =
             List.filter (\v -> v /= t && v /= b) o.params
 
         subs =
-            substitute [ ( t, Var s ), ( b, Var a ) ]
+            substitute [ ( t, s ), ( b, a ) ]
     in
         if (params /= o.params) then
             Just
