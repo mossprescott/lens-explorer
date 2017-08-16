@@ -70,17 +70,20 @@ view model =
             else
                 x
 
-        prepare =
-            prepareIf model.simple (orSame simplify) >> prepareIf model.regular (orSame regular)
+        prepareOptic =
+            prepareIf model.simple (orSame simplify)
+
+        prepareType =
+            prepareIf (not model.regular) (orSame irregular)
 
         optics =
-            List.map prepare allOptics
+            List.map prepareOptic allOptics
 
         renderSpan o =
-            Html.p [] [ nodeToHtml (opticToSrc o) ]
+            Html.p [] [ nodeToHtml (opticToSrc prepareType o) ]
 
         renderRow o =
-            tr [] (List.map (\n -> td [] [ nodeToHtml n ]) (opticToSrcRow o))
+            tr [] (List.map (\n -> td [] [ nodeToHtml n ]) (opticToSrcRow prepareType o))
     in
         div [ style [ ( "margin", "20px" ) ] ]
             [ div [ style [ ( "margin-bottom", "20px" ) ] ]

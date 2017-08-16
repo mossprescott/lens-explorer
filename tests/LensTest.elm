@@ -11,7 +11,7 @@ typeTests =
     describe "The basic type of each optic, transcribed from the haddock"
         [ test "Lens" <|
             \() ->
-                opticType lens
+                (orSame irregular << opticType) lens
                     |> Expect.equal
                         (Constrained [ TypeClassConstraint functor [ f ] ]
                             (Fn
@@ -41,7 +41,7 @@ typeTests =
                         )
         , test "Traversal" <|
             \() ->
-                opticType traversal
+                (orSame irregular << opticType) traversal
                     |> Expect.equal
                         (Constrained [ TypeClassConstraint applicative [ f ] ]
                             (Fn
@@ -51,7 +51,7 @@ typeTests =
                         )
         , test "Fold" <|
             \() ->
-                opticType fold
+                (orSame irregular << opticType) fold
                     |> Expect.equal
                         (Constrained [ TypeClassConstraint contravariant [ f ], TypeClassConstraint applicative [ f ] ]
                             (Fn
@@ -61,7 +61,7 @@ typeTests =
                         )
         , test "Fold1" <|
             \() ->
-                opticType fold1
+                (orSame irregular << opticType) fold1
                     |> Expect.equal
                         (Constrained [ TypeClassConstraint contravariant [ f ], TypeClassConstraint apply [ f ] ]
                             (Fn
@@ -76,7 +76,7 @@ sourceTests =
     describe "Source forms"
         [ test "Iso" <|
             \() ->
-                (nodeToString << opticToSrc) iso
+                (nodeToString << opticToSrc identity) iso
                     |> Expect.equal "Iso s t a b :: forall p f . (Profunctor p, Functor f) ⇒ p a (f b) → p s (f t)"
         ]
 

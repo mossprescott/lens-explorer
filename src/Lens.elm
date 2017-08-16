@@ -79,8 +79,8 @@ lens =
         [ s, t, a, b ]
         []
         [ functor ]
-        (Fn (Var a) (App (Var f) (Var b)))
-        (Fn (Var s) (App (Var f) (Var t)))
+        (app (Prefix FnOp) [ (Var a), (App (Var f) (Var b)) ])
+        (app (Prefix FnOp) [ (Var s), (App (Var f) (Var t)) ])
 
 
 iso =
@@ -106,8 +106,8 @@ traversal =
         [ s, t, a, b ]
         []
         [ applicative ]
-        (Fn (Var a) (App (Var f) (Var b)))
-        (Fn (Var s) (App (Var f) (Var t)))
+        (app (Prefix FnOp) [ (Var a), (App (Var f) (Var b)) ])
+        (app (Prefix FnOp) [ (Var s), (App (Var f) (Var t)) ])
 
 
 fold =
@@ -115,8 +115,8 @@ fold =
         [ s, a ]
         []
         [ contravariant, applicative ]
-        (Fn (Var a) (App (Var f) (Var a)))
-        (Fn (Var s) (App (Var f) (Var s)))
+        (app (Prefix FnOp) [ (Var a), (App (Var f) (Var a)) ])
+        (app (Prefix FnOp) [ (Var s), (App (Var f) (Var s)) ])
 
 
 fold1 =
@@ -124,8 +124,8 @@ fold1 =
         [ s, a ]
         []
         [ contravariant, apply ]
-        (Fn (Var a) (App (Var f) (Var a)))
-        (Fn (Var s) (App (Var f) (Var s)))
+        (app (Prefix FnOp) [ (Var a), (App (Var f) (Var a)) ])
+        (app (Prefix FnOp) [ (Var s), (App (Var f) (Var s)) ])
 
 
 allOptics =
@@ -179,31 +179,38 @@ orSame f x =
     Maybe.withDefault x (f x)
 
 
-{-| Replace infix `->` with prefix `(->)` so that function and non-function types look more parallel.
+{-| Replace prefix `(->)` with infix `->` so that function and non-function types look more familiar.
+TODO: this is currently pretty half-assed; it only looks at a couple of the nodes that we know occur
+near the top.
 -}
-regular : Optic -> Maybe Optic
-regular o =
-    let
-        fnToPrefix n =
-            case n of
-                Fn t1 t2 ->
-                    Just (app (Prefix FnOp) [ t1, t2 ])
+irregular : Type -> Maybe Type
+irregular t =
+    case t of
+        App (App (Prefix FnOp) t1) t2 ->
+            Just (Fn t1 t2)
 
-                _ ->
-                    Nothing
-    in
-        Maybe.map2
-            (\from to -> { o | from = from, to = to })
-            (fnToPrefix o.from)
-            (fnToPrefix o.to)
+        Fn t1 t2 ->
+            Maybe.map2 Fn (irregular t1) (irregular t2)
+
+        Constrained cs t ->
+            Maybe.map (Constrained cs) (irregular t)
+
+        _ ->
+            Nothing
 
 
-opticToSrc : Optic -> Node
-opticToSrc o =
+opticToSrc : (Type -> Type) -> Optic -> Node
+opticToSrc prepare o =
     Words
         ([ Name o.name ]
             ++ (List.map (\v -> Name v.name) o.params)
-            ++ [ Symbol "::", Keyword "forall", Name "p", Name "f", Symbol ".", Tuple.second (typeToSrc (opticType o)) ]
+            ++ [ Symbol "::"
+               , Keyword "forall"
+               , Name "p"
+               , Name "f"
+               , Symbol "."
+               , (Tuple.second << typeToSrc << prepare << opticType) o
+               ]
         )
 
 
@@ -216,8 +223,8 @@ classesToSrc cs v =
 input. Therefore, when these rows are converted to a table, the corresponding nodes will always
 appear in the same columns.
 -}
-opticToSrcRow : Optic -> List Node
-opticToSrcRow o =
+opticToSrcRow : (Type -> Type) -> Optic -> List Node
+opticToSrcRow prepare o =
     [ Name o.name
     , Name "s"
     , if (List.member t o.params) then
@@ -247,9 +254,9 @@ opticToSrcRow o =
     , Symbol ")"
     , Symbol "⇒"
       -- Note: applying the "fn" precedence to wrap in parens only if it not a App:
-    , parenthesizeOne prec.fn (typeToSrc (o.from))
+    , parenthesizeOne prec.fn (typeToSrc (prepare o.from))
     , Symbol "→"
       -- Note: never surrounding the "to" type with parens, which turns out to be the expected
       -- rendering, although it's mostly happenstance that it works out here.
-    , Tuple.second (typeToSrc (o.to))
+    , Tuple.second (typeToSrc (prepare o.to))
     ]
