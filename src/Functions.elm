@@ -6,53 +6,49 @@ import Type exposing (Node(Name, Symbol, Words))
 
 
 monad =
-    TypeClass { name = "Monad", supers = [ applicative ] }
+    TypeClass "Monad" (Supers [ applicative ])
 
 
 monadReader =
-    TypeClass { name = "MonadReader", supers = [ monad ] }
+    TypeClass "MonadReader" (Supers [ monad ])
 
 
 monadState =
-    TypeClass { name = "MonadState", supers = [ monad ] }
+    TypeClass "MonadState" (Supers [ monad ])
 
 
 m =
-    TypeVar { name = "m" }
+    TypeVar "m"
 
 
 r =
-    TypeVar { name = "r" }
+    TypeVar "r"
 
 
 const =
-    TypeConstructor { name = "Const" }
+    TypeConstructor "Const"
 
 
 identity =
-    TypeConstructor { name = "Identity" }
+    TypeConstructor "Identity"
 
 
 getting =
     TypeAlias
-        { name = "Getting"
-        , args = [ r, s, a ]
-        , rhs =
-            (Fn (Fn (Var a) (app (Constr const) [ (Var r), (Var a) ]))
-                (Fn (Var s) (app (Constr const) [ (Var r), (Var s) ]))
-            )
-        }
+        "Getting"
+        [ r, s, a ]
+        (Fn (Fn (Var a) (app (Constr const) [ (Var r), (Var a) ]))
+            (Fn (Var s) (app (Constr const) [ (Var r), (Var s) ]))
+        )
 
 
 aSetter =
     TypeAlias
-        { name = "ASetter"
-        , args = [ s, t, a, b ]
-        , rhs =
-            (Fn (Fn (Var a) (App (Constr identity) (Var b)))
-                (Fn (Var s) (App (Constr identity) (Var t)))
-            )
-        }
+        "ASetter"
+        [ s, t, a, b ]
+        (Fn (Fn (Var a) (App (Constr identity) (Var b)))
+            (Fn (Var s) (App (Constr identity) (Var t)))
+        )
 
 
 {-| Functions that take an optic and turn it into an operation on values. The type

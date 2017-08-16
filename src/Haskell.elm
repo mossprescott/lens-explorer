@@ -5,13 +5,13 @@ Haskell types, but is enough to express the types of parametric functions and ty
 constraints.
 
 # Basics
-@docs Type, TypeVar, Op, Constraint, TypeConstructor, TypeClass, app
+@docs Type, TypeVar, Op, Constraint, TypeConstructor, TypeClass, Supers, app
 
 # Aliases
 @docs TypeAlias, aliasRef
 
 # Utilities
-@docs typeToSrc, constraintToSrc, prec, substitute, composeFns
+@docs typeToSrc, constraintToSrc, prec, substitute
 -}
 
 import Dict
@@ -21,17 +21,23 @@ import Type exposing (..)
 
 {-| A named type variable.
 -}
-type TypeVar
-    = TypeVar { name : String }
+type alias TypeVar =
+    { name : String }
 
 
 {-| A type class, including references to any type classes it inherits from.
 -}
-type TypeClass
-    = TypeClass
-        { name : String
-        , supers : List TypeClass
-        }
+type alias TypeClass =
+    { name : String
+    , supers : Supers
+    }
+
+
+{-| A type to capture the recursion in TypeClass, because Elm is weird about pushing
+you towards type aliases.
+-}
+type Supers
+    = Supers (List TypeClass)
 
 
 {-| A constraint on a type paramater.
@@ -43,14 +49,14 @@ type Constraint
 
 {-| A (type-level) operator; that is, an infix type constructor such as `->`.
 -}
-type Op
-    = Op { symbol : String }
+type alias Op =
+    { symbol : String }
 
 
 {-| A type constructor.
 -}
-type TypeConstructor
-    = TypeConstructor { name : String }
+type alias TypeConstructor =
+    { name : String }
 
 
 {-| A Haskell type.
@@ -80,19 +86,18 @@ app f ts =
 
 {-| A type alias is a sort of type-level macro that can be expanded at any time.
 -}
-type TypeAlias
-    = TypeAlias
-        { name : String
-        , args : List TypeVar
-        , rhs : Type
-        }
+type alias TypeAlias =
+    { name : String
+    , args : List TypeVar
+    , rhs : Type
+    }
 
 
 {-| When an alias is referenced, it looks like a type constructor.
 -}
 aliasRef : TypeAlias -> Type
-aliasRef (TypeAlias alias) =
-    Constr (TypeConstructor { name = alias.name })
+aliasRef alias =
+    Constr (TypeConstructor alias.name)
 
 
 {-| Rewrite one or more type variables by substituting for each occurrence.
@@ -102,15 +107,15 @@ substitute : List ( TypeVar, TypeVar ) -> Type -> Type
 substitute pairs t =
     let
         byName =
-            Dict.fromList (List.map (Tuple.mapFirst (\(TypeVar v) -> v.name)) pairs)
+            Dict.fromList (List.map (Tuple.mapFirst (\v -> v.name)) pairs)
 
-        newVar (TypeVar v) =
+        newVar v =
             case (Dict.get v.name byName) of
                 Just tv ->
                     tv
 
                 Nothing ->
-                    TypeVar v
+                    TypeVar v.name
 
         subConstr c =
             case c of
@@ -167,10 +172,10 @@ typeToSrc t =
         Unit ->
             ( prec.atom, Symbol "()" )
 
-        Var (TypeVar v) ->
+        Var v ->
             ( prec.atom, Name v.name )
 
-        Constr (TypeConstructor c) ->
+        Constr c ->
             ( prec.atom, Name c.name )
 
         App t1 t2 ->
@@ -191,7 +196,7 @@ typeToSrc t =
                 (typeToSrc t1)
                 (typeToSrc t2)
 
-        Prefix (Op op) ->
+        Prefix op ->
             ( prec.atom, Juxt [ Symbol "(", Symbol op.symbol, Symbol ")" ] )
 
         Constrained cs t ->
@@ -208,8 +213,8 @@ typeToSrc t =
 constraintToSrc : Constraint -> Node
 constraintToSrc c =
     case c of
-        TypeClassConstraint (TypeClass tc) vs ->
-            Words ([ Name tc.name ] ++ List.map (Name << (\(TypeVar v) -> v.name)) vs)
+        TypeClassConstraint tc vs ->
+            Words ([ Name tc.name ] ++ List.map (Name << (\v -> v.name)) vs)
 
         Equivalent t v ->
             Tuple.second (parenthesize prec.infix (Just (Symbol "~")) (typeToSrc (Var v)) (typeToSrc t))

@@ -4,7 +4,7 @@ import Html exposing (Html, div, fieldset, input, label, table, td, tr, text)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import Functions exposing (fnToSrc, functions)
-import Haskell exposing (TypeVar(TypeVar), typeToSrc)
+import Haskell exposing (TypeVar, typeToSrc)
 import Lens exposing (..)
 import Type exposing (..)
 
@@ -107,7 +107,7 @@ view model =
                                                  , Symbol "::"
                                                  , Name (l.name)
                                                  ]
-                                                    ++ List.map (\(TypeVar v) -> Name v.name) l.params
+                                                    ++ List.map (\v -> Name v.name) l.params
                                                     ++ [ Symbol ")" ]
                                                 )
                                         )

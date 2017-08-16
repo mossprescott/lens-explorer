@@ -9,13 +9,13 @@ import Type exposing (nodeToString)
 sourceTests =
     let
         f =
-            Var (TypeVar { name = "f" })
+            Var (TypeVar "f")
 
         a =
-            Var (TypeVar { name = "a" })
+            Var (TypeVar "a")
 
         b =
-            Var (TypeVar { name = "b" })
+            Var (TypeVar "b")
     in
         describe "Source forms"
             [ test "nested Apps" <|

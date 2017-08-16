@@ -5,27 +5,27 @@ import Type exposing (..)
 
 
 p =
-    TypeVar { name = "p" }
+    TypeVar "p"
 
 
 f =
-    TypeVar { name = "f" }
+    TypeVar "f"
 
 
 s =
-    TypeVar { name = "s" }
+    TypeVar "s"
 
 
 t =
-    TypeVar { name = "t" }
+    TypeVar "t"
 
 
 a =
-    TypeVar { name = "a" }
+    TypeVar "a"
 
 
 b =
-    TypeVar { name = "b" }
+    TypeVar "b"
 
 
 type alias Constrained =
@@ -37,11 +37,11 @@ type alias Constrained =
 
 
 profunctor =
-    TypeClass { name = "Profunctor", supers = [] }
+    TypeClass "Profunctor" (Supers [])
 
 
 choice =
-    TypeClass { name = "Choice", supers = [ profunctor ] }
+    TypeClass "Choice" (Supers [ profunctor ])
 
 
 
@@ -49,19 +49,19 @@ choice =
 
 
 functor =
-    TypeClass { name = "Functor", supers = [] }
+    TypeClass "Functor" (Supers [])
 
 
 applicative =
-    TypeClass { name = "Applicative", supers = [ functor ] }
+    TypeClass "Applicative" (Supers [ functor ])
 
 
 apply =
-    TypeClass { name = "Apply", supers = [ functor ] }
+    TypeClass "Apply" (Supers [ functor ])
 
 
 contravariant =
-    TypeClass { name = "Contravariant", supers = [] }
+    TypeClass "Contravariant" (Supers [])
 
 
 type alias Optic =
@@ -174,7 +174,7 @@ regular o =
         fnToPrefix n =
             case n of
                 Fn t1 t2 ->
-                    Just (app (Prefix (Op { symbol = "→" })) [ t1, t2 ])
+                    Just (app (Prefix (Op "→")) [ t1, t2 ])
 
                 _ ->
                     Nothing
@@ -189,7 +189,7 @@ opticToSrc : Optic -> Node
 opticToSrc o =
     Words
         ([ Name o.name ]
-            ++ (List.map (\(TypeVar v) -> Name v.name) o.params)
+            ++ (List.map (\v -> Name v.name) o.params)
             ++ [ Symbol "::", Keyword "forall", Name "p", Name "f", Symbol ".", Tuple.second (typeToSrc (opticType o)) ]
         )
 
