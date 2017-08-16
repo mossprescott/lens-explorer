@@ -60,7 +60,7 @@ of the resulting operation is typically simple, but which type it is depends on 
 kind of optic you give it, which would be interesting to explore.
 
 Note: all of these are left out:
-* functions that construct of transform optics, yielding an optic
+* functions that construct or transform optics, yielding an optic
 * functions involving MonadWriter
 * functions involving the "Indexed" optics
 * infix operators (many of which are aliases for these functions)
