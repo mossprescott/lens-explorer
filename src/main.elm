@@ -4,8 +4,9 @@ import Html exposing (Html, div, fieldset, input, label, table, td, tr, text)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import Functions exposing (fnToSrc, functions)
+import Haskell exposing (TypeVar(TypeVar), typeToSrc)
 import Lens exposing (..)
-import Type exposing (nodeToHtml)
+import Type exposing (..)
 
 
 main =
@@ -21,16 +22,16 @@ main =
 
 
 type alias Model =
-    { optics : List Optic
-    , aligned : Bool
+    { aligned : Bool
     , simple : Bool
     , regular : Bool
+    , composed : List Optic
     }
 
 
 model : Model
 model =
-    Model allOptics True False False
+    Model True False False [ (orSame simplify) lens, prism ]
 
 
 
@@ -73,7 +74,7 @@ view model =
             prepareIf model.simple (orSame simplify) >> prepareIf model.regular (orSame regular)
 
         optics =
-            List.map prepare model.optics
+            List.map prepare allOptics
 
         renderSpan o =
             Html.p [] [ nodeToHtml (opticToSrc o) ]
@@ -81,15 +82,40 @@ view model =
         renderRow o =
             tr [] (List.map (\n -> td [] [ nodeToHtml n ]) (opticToSrcRow o))
     in
-        div []
-            [ if model.aligned then
-                table [] (List.map renderRow optics)
-              else
-                div [] (List.map renderSpan optics)
-            , fieldset []
+        div [ style [ ( "margin", "20px" ) ] ]
+            [ div [ style [ ( "margin-bottom", "20px" ) ] ]
                 [ checkbox (SetAligned (not model.aligned)) "Aligned" model.aligned
                 , checkbox (SetSimple (not model.simple)) "Simple" model.simple
                 , checkbox (SetRegular (not model.regular)) "Regular" model.regular
+                ]
+            , if model.aligned then
+                table [] (List.map renderRow optics)
+              else
+                div [] (List.map renderSpan optics)
+            , div []
+                [ Html.p [] [ text "l :: (a -> f a) -> c -> f c" ]
+                , Html.p []
+                    [ nodeToHtml
+                        (Words
+                            ([ Name "l", Symbol "=" ]
+                                ++ List.intersperse (Symbol ".")
+                                    (List.map
+                                        (\l ->
+                                            Words
+                                                ([ Symbol "("
+                                                 , Name "_"
+                                                 , Symbol "::"
+                                                 , Name (l.name)
+                                                 ]
+                                                    ++ List.map (\(TypeVar v) -> Name v.name) l.params
+                                                    ++ [ Symbol ")" ]
+                                                )
+                                        )
+                                        model.composed
+                                    )
+                            )
+                        )
+                    ]
                 ]
             , div [] (List.map (div [] << List.singleton << nodeToHtml << fnToSrc) functions)
             ]
