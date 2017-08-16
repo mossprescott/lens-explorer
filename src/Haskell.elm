@@ -47,10 +47,11 @@ type Constraint
     | Equivalent Type TypeVar
 
 
-{-| A (type-level) operator; that is, an infix type constructor such as `->`.
+{-| A (type-level) operator; that is, an infix type constructor such as `->`. Actually,
+that's the _only_ one for now.
 -}
-type alias Op =
-    { symbol : String }
+type Op
+    = FnOp
 
 
 {-| A type constructor.
@@ -196,8 +197,8 @@ typeToSrc t =
                 (typeToSrc t1)
                 (typeToSrc t2)
 
-        Prefix op ->
-            ( prec.atom, Juxt [ Symbol "(", Symbol op.symbol, Symbol ")" ] )
+        Prefix FnOp ->
+            ( prec.atom, Juxt [ Symbol "(", Symbol "→", Symbol ")" ] )
 
         Constrained cs t ->
             parenthesize prec.constrained

@@ -187,7 +187,7 @@ regular o =
         fnToPrefix n =
             case n of
                 Fn t1 t2 ->
-                    Just (app (Prefix (Op "→")) [ t1, t2 ])
+                    Just (app (Prefix FnOp) [ t1, t2 ])
 
                 _ ->
                     Nothing
