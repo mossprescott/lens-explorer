@@ -103,17 +103,20 @@ composeTests =
                                 ( Optic "Lens'"
                                     [ x, y ]
                                     []
+                                    []
                                     [ functor ]
                                     (Fn (Var y) (App (Var f) (Var y)))
                                     (Fn (Var x) (App (Var f) (Var x)))
                                 , Optic "Lens'"
                                     [ y, z ]
                                     []
+                                    []
                                     [ functor ]
                                     (Fn (Var z) (App (Var f) (Var z)))
                                     (Fn (Var y) (App (Var f) (Var y)))
                                 , Optic ""
                                     [ s, a ]
+                                    []
                                     []
                                     [ functor ]
                                     (Fn (Var z) (App (Var f) (Var z)))
