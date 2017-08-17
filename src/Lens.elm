@@ -1,6 +1,7 @@
 module Lens exposing (..)
 
 import Haskell exposing (..)
+import Library exposing (..)
 import Type exposing (..)
 
 
@@ -32,41 +33,37 @@ type alias Constrained =
     TypeVar -> Constraint
 
 
-
--- Type classes that are applied to `p`:
-
-
-profunctor =
-    TypeClass "Profunctor" (Supers [])
-
-
-choice =
-    TypeClass "Choice" (Supers [ profunctor ])
+type alias FnBased =
+    { fClasses : List TypeClass
+    , f : TypeVar
+    , s : TypeVar
+    , a : TypeVar
+    }
 
 
-
--- Type classes that are applied to `f`:
-
-
-functor =
-    TypeClass "Functor" (Supers [])
-
-
-applicative =
-    TypeClass "Applicative" (Supers [ functor ])
+type alias VarBased =
+    { pClasses : List TypeClass
+    , fClasses : List TypeClass
+    , s : TypeVar
+    , a : TypeVar
+    }
 
 
-apply =
-    TypeClass "Apply" (Supers [ functor ])
+type Optic_
+    = FnOptic FnBased
+    | VarOptic VarBased
 
 
-contravariant =
-    TypeClass "Contravariant" (Supers [])
+
+-- p: either (->) or p (and needs pClasses)
+-- simple: either s and a or also t and b
+-- typevars
 
 
 type alias Optic =
     { name : String
     , params : List TypeVar
+    , univ : List TypeVar
     , pClasses : List TypeClass
     , fClasses : List TypeClass
     , from : Type
@@ -77,6 +74,7 @@ type alias Optic =
 lens =
     Optic "Lens"
         [ s, t, a, b ]
+        [ f ]
         []
         [ functor ]
         (app (Prefix FnOp) [ (Var a), (App (Var f) (Var b)) ])
@@ -86,6 +84,7 @@ lens =
 iso =
     Optic "Iso"
         [ s, t, a, b ]
+        [ p, f ]
         [ profunctor ]
         [ functor ]
         (app (Var p) [ (Var a), (App (Var f) (Var b)) ])
@@ -95,6 +94,7 @@ iso =
 prism =
     Optic "Prism"
         [ s, t, a, b ]
+        [ p, f ]
         [ choice ]
         [ applicative ]
         (app (Var p) [ (Var a), (App (Var f) (Var b)) ])
@@ -104,6 +104,7 @@ prism =
 traversal =
     Optic "Traversal"
         [ s, t, a, b ]
+        [ f ]
         []
         [ applicative ]
         (app (Prefix FnOp) [ (Var a), (App (Var f) (Var b)) ])
@@ -113,6 +114,7 @@ traversal =
 fold =
     Optic "Fold"
         [ s, a ]
+        [ f ]
         []
         [ contravariant, applicative ]
         (app (Prefix FnOp) [ (Var a), (App (Var f) (Var a)) ])
@@ -122,14 +124,87 @@ fold =
 fold1 =
     Optic "Fold1"
         [ s, a ]
+        [ f ]
         []
         [ contravariant, apply ]
         (app (Prefix FnOp) [ (Var a), (App (Var f) (Var a)) ])
         (app (Prefix FnOp) [ (Var s), (App (Var f) (Var s)) ])
 
 
+getter =
+    Optic "Getter"
+        [ s, a ]
+        [ f ]
+        []
+        [ contravariant, functor ]
+        (app (Prefix FnOp) [ (Var a), (App (Var f) (Var a)) ])
+        (app (Prefix FnOp) [ (Var s), (App (Var f) (Var s)) ])
+
+
+setter =
+    Optic "Setter"
+        [ s, t, a, b ]
+        [ f ]
+        []
+        [ settable ]
+        (app (Prefix FnOp) [ (Var a), (App (Var f) (Var b)) ])
+        (app (Prefix FnOp) [ (Var s), (App (Var f) (Var t)) ])
+
+
+{-| Getting is used in type signatures to indicate any optic that can produce values may be supplied.
+-}
+getting =
+    Optic "Getting"
+        -- Note: unexpected param here
+        [ TypeVar "r", s, a ]
+        []
+        []
+        []
+        (app (Prefix FnOp) [ (Var a), (app (Constr const) [ (Var (TypeVar "r")), (Var a) ]) ])
+        (app (Prefix FnOp) [ (Var s), (app (Constr const) [ (Var (TypeVar "r")), (Var s) ]) ])
+
+
+setting =
+    Optic "Setting"
+        -- Note: unexpected param here
+        [ p, s, t, a, b ]
+        []
+        []
+        []
+        (app (Var p) [ (Var a), (App (Constr ident) (Var a)) ])
+        (app (Var p) [ (Var s), (App (Constr ident) (Var s)) ])
+
+
+aSetter =
+    Optic "ASetter"
+        [ s, t, a, b ]
+        []
+        []
+        []
+        (app (Prefix FnOp) [ (Var a), (App (Constr ident) (Var b)) ])
+        (app (Prefix FnOp) [ (Var s), (App (Constr ident) (Var t)) ])
+
+
+{-| The most commonly used types.
+-}
+primaryOptics =
+    [ lens, iso, prism, traversal ]
+
+
+{-| More limited types that are used less often.
+-}
+extraOptics =
+    [ getter, setter, fold, fold1 ]
+
+
+{-| Types that are typically only used in type signatures.
+-}
+argumentOptics =
+    [ getting, setting, aSetter ]
+
+
 allOptics =
-    [ lens, iso, prism, traversal, fold, fold1 ]
+    primaryOptics ++ extraOptics ++ argumentOptics
 
 
 opticType : Optic -> Type
@@ -202,14 +277,15 @@ irregular t =
 opticToSrc : (Type -> Type) -> Optic -> Node
 opticToSrc prepare o =
     Words
-        ([ Name o.name ]
+        ([ Keyword "type", Name o.name ]
             ++ (List.map (\v -> Name v.name) o.params)
-            ++ [ Symbol "::"
-               , Keyword "forall"
-               , Name "p"
-               , Name "f"
-               , Symbol "."
-               , (Tuple.second << typeToSrc << prepare << opticType) o
+            ++ [ Symbol "=" ]
+            ++ (if (List.isEmpty o.univ) then
+                    []
+                else
+                    [ Keyword "forall" ] ++ (List.map (\v -> Name v.name) o.univ) ++ [ Symbol "." ]
+               )
+            ++ [ (Tuple.second << typeToSrc << prepare << opticType) o
                ]
         )
 
@@ -225,22 +301,16 @@ appear in the same columns.
 -}
 opticToSrcRow : (Type -> Type) -> Optic -> List Node
 opticToSrcRow prepare o =
-    [ Name o.name
-    , Name "s"
-    , if (List.member t o.params) then
-        Name "t"
-      else
-        Symbol ""
-    , Name "a"
-    , if (List.member b o.params) then
-        Name "b"
-      else
-        Symbol ""
-    , Symbol "::"
-    , Keyword "forall"
-    , Name "p"
-    , Name "f"
-    , Symbol "."
+    [ Keyword "type"
+    , Name o.name
+    , Words (List.map (\v -> Name v.name) o.params)
+    , Symbol "="
+    , Words
+        (if (List.isEmpty o.univ) then
+            []
+         else
+            [ Keyword "forall" ] ++ (List.map (\v -> Name v.name) o.univ) ++ [ Symbol "." ]
+        )
     , Symbol "("
     , let
         n =

@@ -1,20 +1,9 @@
 module Functions exposing (..)
 
 import Haskell exposing (..)
-import Lens exposing (s, t, a, b, applicative)
+import Lens exposing (s, t, a, b)
 import Type exposing (Node(Name, Symbol, Words))
-
-
-monad =
-    TypeClass "Monad" (Supers [ applicative ])
-
-
-monadReader =
-    TypeClass "MonadReader" (Supers [ monad ])
-
-
-monadState =
-    TypeClass "MonadState" (Supers [ monad ])
+import Library exposing (..)
 
 
 m =
@@ -23,14 +12,6 @@ m =
 
 r =
     TypeVar "r"
-
-
-const =
-    TypeConstructor "Const"
-
-
-identity =
-    TypeConstructor "Identity"
 
 
 getting =
@@ -46,8 +27,8 @@ aSetter =
     TypeAlias
         "ASetter"
         [ s, t, a, b ]
-        (Fn (Fn (Var a) (App (Constr identity) (Var b)))
-            (Fn (Var s) (App (Constr identity) (Var t)))
+        (Fn (Fn (Var a) (App (Constr ident) (Var b)))
+            (Fn (Var s) (App (Constr ident) (Var t)))
         )
 
 
@@ -89,6 +70,7 @@ functions =
       )
       -- More
       -- Iso stuff:
+      -- from :: AnIso s t a b -> Iso b a t s  -- an exception to the above?
       -- au :: Functor f => AnIso s t a b -> ((b -> t) -> f s) -> f a
       -- auf :: Optic (Costar f) g s t a b -> (f a -> g b) -> f s -> g t
       -- under :: AnIso s t a b -> (t -> s) -> b -> a

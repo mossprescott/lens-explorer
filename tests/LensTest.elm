@@ -4,6 +4,7 @@ import Expect exposing (..)
 import Test exposing (..)
 import Haskell exposing (..)
 import Lens exposing (..)
+import Library exposing (..)
 import Type exposing (nodeToString)
 
 
@@ -77,7 +78,7 @@ sourceTests =
         [ test "Iso" <|
             \() ->
                 (nodeToString << opticToSrc identity) iso
-                    |> Expect.equal "Iso s t a b :: forall p f . (Profunctor p, Functor f) ⇒ p a (f b) → p s (f t)"
+                    |> Expect.equal "type Iso s t a b = forall p f . (Profunctor p, Functor f) ⇒ p a (f b) → p s (f t)"
         ]
 
 

@@ -2,12 +2,13 @@
     "version": "0.0.1",
     "summary": "Visual tool for exploring Haskell’s Lens types",
     "repository": "https://github.com/mossprecott/lens-viz.git",
-    "license": "?",
+    "license": "Apache 2",
     "source-directories": [
         "src"
     ],
     "exposed-modules": [
       "Haskell",
+      "Library",
       "Type"
     ],
     "dependencies": {
