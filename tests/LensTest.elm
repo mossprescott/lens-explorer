@@ -6,6 +6,7 @@ import Haskell exposing (..)
 import Lens exposing (..)
 import Library exposing (..)
 import Type exposing (nodeToString)
+import Fuzz exposing (..)
 
 
 typeTests =
@@ -82,6 +83,42 @@ sourceTests =
         ]
 
 
+optic =
+    oneOf (List.map constant (allOptics ++ (List.filterMap simplify allOptics)))
+
+
+maybeReg b =
+    if b then
+        identity
+    else
+        (orSame irregular)
+
+
+fancyTests =
+    describe "Fancy rendering matches type"
+        [ fuzz2 optic bool "src" <|
+            \o reg ->
+                let
+                    src =
+                        (opticToSrc (maybeReg reg)) o
+
+                    typ =
+                        (Tuple.second << typeToSrc << opticType) o
+                in
+                    Expect.equal src typ
+        , fuzz2 optic bool "srcRow" <|
+            \o reg ->
+                let
+                    src =
+                        (Type.Words << opticToSrcRow (maybeReg reg)) o
+
+                    typ =
+                        (Tuple.second << typeToSrc << opticType) o
+                in
+                    Expect.equal src typ
+        ]
+
+
 composeTests =
     let
         x =
@@ -101,26 +138,20 @@ composeTests =
                             (Just
                                 -- Note: these all just substitutions on simpleLens
                                 ( Optic "Lens'"
-                                    [ x, y ]
-                                    []
-                                    []
-                                    [ functor ]
-                                    (Fn (Var y) (App (Var f) (Var y)))
-                                    (Fn (Var x) (App (Var f) (Var x)))
+                                    (ConstrainedEffect f [ functor ])
+                                    FnArrow
+                                    (OpticSubjects x y)
+                                    Nothing
                                 , Optic "Lens'"
-                                    [ y, z ]
-                                    []
-                                    []
-                                    [ functor ]
-                                    (Fn (Var z) (App (Var f) (Var z)))
-                                    (Fn (Var y) (App (Var f) (Var y)))
-                                , Optic ""
-                                    [ s, a ]
-                                    []
-                                    []
-                                    [ functor ]
-                                    (Fn (Var z) (App (Var f) (Var z)))
-                                    (Fn (Var x) (App (Var f) (Var x)))
+                                    (ConstrainedEffect f [ functor ])
+                                    FnArrow
+                                    (OpticSubjects y z)
+                                    Nothing
+                                , Optic "?"
+                                    (ConstrainedEffect f [ functor ])
+                                    FnArrow
+                                    (OpticSubjects x z)
+                                    Nothing
                                 )
                             )
             ]

@@ -110,7 +110,7 @@ view model =
                                                  , Symbol "::"
                                                  , Name (l.name)
                                                  ]
-                                                    ++ List.map (\v -> Name v.name) l.params
+                                                    ++ List.map (\v -> Name v.name) (opticParams l)
                                                     ++ [ Symbol ")" ]
                                                 )
                                         )
