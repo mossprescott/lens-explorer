@@ -96,26 +96,36 @@ maybeReg b =
 
 fancyTests =
     describe "Fancy rendering matches type"
-        [ fuzz2 optic bool "src" <|
+        [ {- Note: this test is pretty bogus right now because opticToSrc uses opticType
+             directly. Keeping it in case that changes at some point.
+          -}
+          fuzz2 optic bool "src" <|
             \o reg ->
                 let
                     src =
-                        (opticToSrc (maybeReg reg)) o
+                        (nodeToString << opticToSrc (maybeReg reg)) o
 
                     typ =
-                        (Tuple.second << typeToSrc << opticType) o
+                        (nodeToString << Tuple.second << typeToSrc << (maybeReg reg) << opticType) o
                 in
-                    Expect.equal src typ
+                    (String.endsWith typ src)
+                        |> Expect.true "fancy src doesn't match type"
+                        |> Expect.onFail (src ++ "\n  but the type looks like \n" ++ typ)
         , fuzz2 optic bool "srcRow" <|
             \o reg ->
                 let
                     src =
-                        (Type.Words << opticToSrcRow (maybeReg reg)) o
+                        (nodeToString << Type.Words << opticToSrcRow (maybeReg reg)) o
 
                     typ =
-                        (Tuple.second << typeToSrc << opticType) o
+                        (nodeToString << Tuple.second << typeToSrc << (maybeReg reg) << opticType) o
+
+                    stripWhitespace =
+                        String.filter (\c -> c /= ' ')
                 in
-                    Expect.equal src typ
+                    (String.endsWith (stripWhitespace typ) (stripWhitespace src))
+                        |> Expect.true "fancy src doesn't match type"
+                        |> Expect.onFail (src ++ "\n  but the type looks like \n" ++ typ)
         ]
 
 
