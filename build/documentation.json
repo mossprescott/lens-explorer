@@ -1,8 +1,122 @@
 [
   {
-    "name": "Haskell",
-    "comment": " Haskell types and operations on them. This is not really a full representation of\nHaskell types, but is enough to express the types of parametric functions and typeclass\nconstraints.\n\n# Basics\n@docs Type, TypeVar, Op, Constraint, TypeConstructor, TypeClass, app\n\n# Aliases\n@docs TypeAlias, aliasRef\n\n# Utilities\n@docs typeToSrc, constraintToSrc, prec, substitute\n",
+    "name": "Library",
+    "comment": " Type classes making up the part of the Haskell library which is referred to by the\nlens types.\n\nThis will be the place to encode everything we need to know about the relationships\nbetween types to infer what can be used where.\n\n# Typically applied to `p`:\n@docs profunctor, choice\n\n# Typically applied to `f`:\n@docs functor, applicative, apply, contravariant\n\n# Monad and related classes, used by some of the functions over lenses:\n@docs monad, monadReader, monadState, const, ident\n\n# Related to Setting:\n@docs settable, distributive, traversable, foldable\n\n# Other\n@docs isDefined\n",
     "aliases": [],
+    "types": [],
+    "values": [
+      {
+        "name": "applicative",
+        "comment": " Applicative.\n",
+        "type": "Haskell.TypeClass"
+      },
+      {
+        "name": "apply",
+        "comment": " Apply.\n",
+        "type": "Haskell.TypeClass"
+      },
+      {
+        "name": "choice",
+        "comment": " Choice.\n",
+        "type": "Haskell.TypeClass"
+      },
+      {
+        "name": "const",
+        "comment": " Const.\n",
+        "type": "Haskell.TypeConstructor"
+      },
+      {
+        "name": "contravariant",
+        "comment": " Contravariant.\n",
+        "type": "Haskell.TypeClass"
+      },
+      {
+        "name": "distributive",
+        "comment": " Distributive, the dual of Traversable.\n",
+        "type": "Haskell.TypeClass"
+      },
+      {
+        "name": "foldable",
+        "comment": " Foldable.\n",
+        "type": "Haskell.TypeClass"
+      },
+      {
+        "name": "functor",
+        "comment": " Functor.\n",
+        "type": "Haskell.TypeClass"
+      },
+      {
+        "name": "ident",
+        "comment": " Identity. Note: name shortened to avoid colliding with the built in (`identity`)[Basic#identity] fn.\n",
+        "type": "Haskell.TypeConstructor"
+      },
+      {
+        "name": "isDefined",
+        "comment": " Indicates the existence of an instance for a certain type class applied to\na certain type(s).\n",
+        "type": "Haskell.TypeClass -> List Haskell.Type -> Bool"
+      },
+      {
+        "name": "monad",
+        "comment": " Monad.\n",
+        "type": "Haskell.TypeClass"
+      },
+      {
+        "name": "monadReader",
+        "comment": " MonadReader.\n",
+        "type": "Haskell.TypeClass"
+      },
+      {
+        "name": "monadState",
+        "comment": " MonadState.\n",
+        "type": "Haskell.TypeClass"
+      },
+      {
+        "name": "profunctor",
+        "comment": " Profunctor.\n",
+        "type": "Haskell.TypeClass"
+      },
+      {
+        "name": "settable",
+        "comment": " Settable, which combines apparently all the things and is effectively provided only for\nIdentity (and things isomorphic to it).\n",
+        "type": "Haskell.TypeClass"
+      },
+      {
+        "name": "traversable",
+        "comment": " Traversable.\n",
+        "type": "Haskell.TypeClass"
+      }
+    ],
+    "generated-with-elm-version": "0.18.0"
+  },
+  {
+    "name": "Haskell",
+    "comment": " Haskell types and operations on them. This is not really a full representation of\nHaskell types, but is enough to express the types of parametric functions and typeclass\nconstraints.\n\n# Basics\n@docs Type, TypeVar, Op, Constraint, TypeConstructor, TypeClass, Supers, app\n\n# Aliases\n@docs TypeAlias, aliasRef\n\n# Utilities\n@docs typeToSrc, constraintToSrc, prec, substitute\n",
+    "aliases": [
+      {
+        "name": "TypeAlias",
+        "comment": " A type alias is a sort of type-level macro that can be expanded at any time.\n",
+        "args": [],
+        "type": "{ name : String, args : List Haskell.TypeVar, rhs : Haskell.Type }"
+      },
+      {
+        "name": "TypeClass",
+        "comment": " A type class, including references to any type classes it inherits from.\n",
+        "args": [],
+        "type": "{ name : String, supers : Haskell.Supers }"
+      },
+      {
+        "name": "TypeConstructor",
+        "comment": " A type constructor.\n",
+        "args": [],
+        "type": "{ name : String }"
+      },
+      {
+        "name": "TypeVar",
+        "comment": " A named type variable.\n",
+        "args": [],
+        "type": "{ name : String }"
+      }
+    ],
     "types": [
       {
         "name": "Constraint",
@@ -27,13 +141,24 @@
       },
       {
         "name": "Op",
-        "comment": " A (type-level) operator; that is, an infix type constructor such as `->`.\n",
+        "comment": " A (type-level) operator; that is, an infix type constructor such as `->`. Actually,\nthat's the _only_ one for now.\n",
         "args": [],
         "cases": [
           [
-            "Op",
+            "FnOp",
+            []
+          ]
+        ]
+      },
+      {
+        "name": "Supers",
+        "comment": " A type to capture the recursion in TypeClass, because Elm is weird about pushing\nyou towards type aliases.\n",
+        "args": [],
+        "cases": [
+          [
+            "Supers",
             [
-              "{ symbol : String }"
+              "List Haskell.TypeClass"
             ]
           ]
         ]
@@ -87,58 +212,6 @@
             ]
           ]
         ]
-      },
-      {
-        "name": "TypeAlias",
-        "comment": " A type alias is a sort of type-level macro that can be expanded at any time.\n",
-        "args": [],
-        "cases": [
-          [
-            "TypeAlias",
-            [
-              "{ name : String, args : List Haskell.TypeVar, rhs : Haskell.Type }"
-            ]
-          ]
-        ]
-      },
-      {
-        "name": "TypeClass",
-        "comment": " A type class, including references to any type classes it inherits from.\n",
-        "args": [],
-        "cases": [
-          [
-            "TypeClass",
-            [
-              "{ name : String, supers : List Haskell.TypeClass }"
-            ]
-          ]
-        ]
-      },
-      {
-        "name": "TypeConstructor",
-        "comment": " A type constructor.\n",
-        "args": [],
-        "cases": [
-          [
-            "TypeConstructor",
-            [
-              "{ name : String }"
-            ]
-          ]
-        ]
-      },
-      {
-        "name": "TypeVar",
-        "comment": " A named type variable.\n",
-        "args": [],
-        "cases": [
-          [
-            "TypeVar",
-            [
-              "{ name : String }"
-            ]
-          ]
-        ]
       }
     ],
     "values": [
@@ -164,8 +237,8 @@
       },
       {
         "name": "substitute",
-        "comment": " Eliminate one or more type variables by substituting a type expression for each\noccurence.\n",
-        "type": "List ( Haskell.TypeVar, Haskell.Type ) -> Haskell.Type -> Haskell.Type"
+        "comment": " Rewrite one or more type variables by substituting for each occurrence.\nNote: takes a list of pairs because Elm Dicts can't contain arbitrary types.\n",
+        "type": "List ( Haskell.TypeVar, Haskell.TypeVar ) -> Haskell.Type -> Haskell.Type"
       },
       {
         "name": "typeToSrc",

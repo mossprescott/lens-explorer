@@ -5733,6 +5733,136 @@ var _elm_lang$core$Tuple$first = function (_p6) {
 	var _p7 = _p6;
 	return _p7._0;
 };
+var _elm_lang$core$Set$foldr = F3(
+	function (f, b, _p0) {
+		var _p1 = _p0;
+		return A3(
+			_elm_lang$core$Dict$foldr,
+			F3(
+				function (k, _p2, b) {
+					return A2(f, k, b);
+				}),
+			b,
+			_p1._0);
+	});
+var _elm_lang$core$Set$foldl = F3(
+	function (f, b, _p3) {
+		var _p4 = _p3;
+		return A3(
+			_elm_lang$core$Dict$foldl,
+			F3(
+				function (k, _p5, b) {
+					return A2(f, k, b);
+				}),
+			b,
+			_p4._0);
+	});
+var _elm_lang$core$Set$toList = function (_p6) {
+	var _p7 = _p6;
+	return _elm_lang$core$Dict$keys(_p7._0);
+};
+var _elm_lang$core$Set$size = function (_p8) {
+	var _p9 = _p8;
+	return _elm_lang$core$Dict$size(_p9._0);
+};
+var _elm_lang$core$Set$member = F2(
+	function (k, _p10) {
+		var _p11 = _p10;
+		return A2(_elm_lang$core$Dict$member, k, _p11._0);
+	});
+var _elm_lang$core$Set$isEmpty = function (_p12) {
+	var _p13 = _p12;
+	return _elm_lang$core$Dict$isEmpty(_p13._0);
+};
+var _elm_lang$core$Set$Set_elm_builtin = function (a) {
+	return {ctor: 'Set_elm_builtin', _0: a};
+};
+var _elm_lang$core$Set$empty = _elm_lang$core$Set$Set_elm_builtin(_elm_lang$core$Dict$empty);
+var _elm_lang$core$Set$singleton = function (k) {
+	return _elm_lang$core$Set$Set_elm_builtin(
+		A2(
+			_elm_lang$core$Dict$singleton,
+			k,
+			{ctor: '_Tuple0'}));
+};
+var _elm_lang$core$Set$insert = F2(
+	function (k, _p14) {
+		var _p15 = _p14;
+		return _elm_lang$core$Set$Set_elm_builtin(
+			A3(
+				_elm_lang$core$Dict$insert,
+				k,
+				{ctor: '_Tuple0'},
+				_p15._0));
+	});
+var _elm_lang$core$Set$fromList = function (xs) {
+	return A3(_elm_lang$core$List$foldl, _elm_lang$core$Set$insert, _elm_lang$core$Set$empty, xs);
+};
+var _elm_lang$core$Set$map = F2(
+	function (f, s) {
+		return _elm_lang$core$Set$fromList(
+			A2(
+				_elm_lang$core$List$map,
+				f,
+				_elm_lang$core$Set$toList(s)));
+	});
+var _elm_lang$core$Set$remove = F2(
+	function (k, _p16) {
+		var _p17 = _p16;
+		return _elm_lang$core$Set$Set_elm_builtin(
+			A2(_elm_lang$core$Dict$remove, k, _p17._0));
+	});
+var _elm_lang$core$Set$union = F2(
+	function (_p19, _p18) {
+		var _p20 = _p19;
+		var _p21 = _p18;
+		return _elm_lang$core$Set$Set_elm_builtin(
+			A2(_elm_lang$core$Dict$union, _p20._0, _p21._0));
+	});
+var _elm_lang$core$Set$intersect = F2(
+	function (_p23, _p22) {
+		var _p24 = _p23;
+		var _p25 = _p22;
+		return _elm_lang$core$Set$Set_elm_builtin(
+			A2(_elm_lang$core$Dict$intersect, _p24._0, _p25._0));
+	});
+var _elm_lang$core$Set$diff = F2(
+	function (_p27, _p26) {
+		var _p28 = _p27;
+		var _p29 = _p26;
+		return _elm_lang$core$Set$Set_elm_builtin(
+			A2(_elm_lang$core$Dict$diff, _p28._0, _p29._0));
+	});
+var _elm_lang$core$Set$filter = F2(
+	function (p, _p30) {
+		var _p31 = _p30;
+		return _elm_lang$core$Set$Set_elm_builtin(
+			A2(
+				_elm_lang$core$Dict$filter,
+				F2(
+					function (k, _p32) {
+						return p(k);
+					}),
+				_p31._0));
+	});
+var _elm_lang$core$Set$partition = F2(
+	function (p, _p33) {
+		var _p34 = _p33;
+		var _p35 = A2(
+			_elm_lang$core$Dict$partition,
+			F2(
+				function (k, _p36) {
+					return p(k);
+				}),
+			_p34._0);
+		var p1 = _p35._0;
+		var p2 = _p35._1;
+		return {
+			ctor: '_Tuple2',
+			_0: _elm_lang$core$Set$Set_elm_builtin(p1),
+			_1: _elm_lang$core$Set$Set_elm_builtin(p2)
+		};
+	});
 var _elm_lang$virtual_dom$VirtualDom_Debug$wrap;
 var _elm_lang$virtual_dom$VirtualDom_Debug$wrapWithFlags;
 
@@ -8261,34 +8391,55 @@ var _mossprecott$lens_viz$Type$Words = function (a) {
 var _mossprecott$lens_viz$Type$Symbol = function (a) {
 	return {ctor: 'Symbol', _0: a};
 };
-var _mossprecott$lens_viz$Type$parenthesize = F3(
-	function (outer, sepOpt, pairs) {
-		var parens = F2(
-			function (outer, _p1) {
-				var _p2 = _p1;
-				var _p3 = _p2._1;
-				return (_elm_lang$core$Native_Utils.cmp(_p2._0, outer) < 1) ? _mossprecott$lens_viz$Type$Juxt(
-					{
+var _mossprecott$lens_viz$Type$parenthesizeOne_ = F3(
+	function (cmp, outer, _p1) {
+		var _p2 = _p1;
+		var _p3 = _p2._1;
+		return A2(cmp, _p2._0, outer) ? _mossprecott$lens_viz$Type$Juxt(
+			{
+				ctor: '::',
+				_0: _mossprecott$lens_viz$Type$Symbol('('),
+				_1: {
+					ctor: '::',
+					_0: _p3,
+					_1: {
 						ctor: '::',
-						_0: _mossprecott$lens_viz$Type$Symbol('('),
+						_0: _mossprecott$lens_viz$Type$Symbol(')'),
+						_1: {ctor: '[]'}
+					}
+				}
+			}) : _p3;
+	});
+var _mossprecott$lens_viz$Type$parenthesize_ = F6(
+	function (cmp1, cmp2, pOuter, sepOpt, p1, p2) {
+		var pPairs = {
+			ctor: '::',
+			_0: A3(_mossprecott$lens_viz$Type$parenthesizeOne_, cmp1, pOuter, p1),
+			_1: {
+				ctor: '::',
+				_0: A3(_mossprecott$lens_viz$Type$parenthesizeOne_, cmp2, pOuter, p2),
+				_1: {ctor: '[]'}
+			}
+		};
+		var p = function (n) {
+			return _mossprecott$lens_viz$Type$Juxt(
+				{
+					ctor: '::',
+					_0: _mossprecott$lens_viz$Type$Symbol('('),
+					_1: {
+						ctor: '::',
+						_0: n,
 						_1: {
 							ctor: '::',
-							_0: _p3,
-							_1: {
-								ctor: '::',
-								_0: _mossprecott$lens_viz$Type$Symbol(')'),
-								_1: {ctor: '[]'}
-							}
+							_0: _mossprecott$lens_viz$Type$Symbol(')'),
+							_1: {ctor: '[]'}
 						}
-					}) : _p3;
-			});
-		var pPairs = A2(
-			_elm_lang$core$List$map,
-			parens(outer),
-			pairs);
+					}
+				});
+		};
 		return {
 			ctor: '_Tuple2',
-			_0: outer,
+			_0: pOuter,
 			_1: _mossprecott$lens_viz$Type$Words(
 				function () {
 					var _p4 = sepOpt;
@@ -8300,6 +8451,41 @@ var _mossprecott$lens_viz$Type$parenthesize = F3(
 				}())
 		};
 	});
+var _mossprecott$lens_viz$Type$parenthesize = A2(
+	_mossprecott$lens_viz$Type$parenthesize_,
+	F2(
+		function (x, y) {
+			return _elm_lang$core$Native_Utils.cmp(x, y) < 1;
+		}),
+	F2(
+		function (x, y) {
+			return _elm_lang$core$Native_Utils.cmp(x, y) < 1;
+		}));
+var _mossprecott$lens_viz$Type$parenthesizeLeftAssoc = A2(
+	_mossprecott$lens_viz$Type$parenthesize_,
+	F2(
+		function (x, y) {
+			return _elm_lang$core$Native_Utils.cmp(x, y) < 0;
+		}),
+	F2(
+		function (x, y) {
+			return _elm_lang$core$Native_Utils.cmp(x, y) < 1;
+		}));
+var _mossprecott$lens_viz$Type$parenthesizeRightAssoc = A2(
+	_mossprecott$lens_viz$Type$parenthesize_,
+	F2(
+		function (x, y) {
+			return _elm_lang$core$Native_Utils.cmp(x, y) < 1;
+		}),
+	F2(
+		function (x, y) {
+			return _elm_lang$core$Native_Utils.cmp(x, y) < 0;
+		}));
+var _mossprecott$lens_viz$Type$parenthesizeOne = _mossprecott$lens_viz$Type$parenthesizeOne_(
+	F2(
+		function (x, y) {
+			return _elm_lang$core$Native_Utils.cmp(x, y) < 1;
+		}));
 var _mossprecott$lens_viz$Type$nodeToHtml = function (n) {
 	nodeToHtml:
 	while (true) {
@@ -8392,10 +8578,21 @@ var _mossprecott$lens_viz$Type$Keyword = function (a) {
 };
 var _mossprecott$lens_viz$Haskell$prec = {atom: 5, app: 4, infix: 3, fn: 2, constrained: 1, equiv: 0};
 var _mossprecott$lens_viz$Haskell$TypeVar = function (a) {
-	return {ctor: 'TypeVar', _0: a};
+	return {name: a};
 };
-var _mossprecott$lens_viz$Haskell$TypeClass = function (a) {
-	return {ctor: 'TypeClass', _0: a};
+var _mossprecott$lens_viz$Haskell$TypeClass = F2(
+	function (a, b) {
+		return {name: a, supers: b};
+	});
+var _mossprecott$lens_viz$Haskell$TypeConstructor = function (a) {
+	return {name: a};
+};
+var _mossprecott$lens_viz$Haskell$TypeAlias = F3(
+	function (a, b, c) {
+		return {name: a, args: b, rhs: c};
+	});
+var _mossprecott$lens_viz$Haskell$Supers = function (a) {
+	return {ctor: 'Supers', _0: a};
 };
 var _mossprecott$lens_viz$Haskell$Equivalent = F2(
 	function (a, b) {
@@ -8405,12 +8602,7 @@ var _mossprecott$lens_viz$Haskell$TypeClassConstraint = F2(
 	function (a, b) {
 		return {ctor: 'TypeClassConstraint', _0: a, _1: b};
 	});
-var _mossprecott$lens_viz$Haskell$Op = function (a) {
-	return {ctor: 'Op', _0: a};
-};
-var _mossprecott$lens_viz$Haskell$TypeConstructor = function (a) {
-	return {ctor: 'TypeConstructor', _0: a};
-};
+var _mossprecott$lens_viz$Haskell$FnOp = {ctor: 'FnOp'};
 var _mossprecott$lens_viz$Haskell$Constrained = F2(
 	function (a, b) {
 		return {ctor: 'Constrained', _0: a, _1: b};
@@ -8445,101 +8637,111 @@ var _mossprecott$lens_viz$Haskell$app = F2(
 var _mossprecott$lens_viz$Haskell$Constr = function (a) {
 	return {ctor: 'Constr', _0: a};
 };
-var _mossprecott$lens_viz$Haskell$aliasRef = function (_p1) {
-	var _p2 = _p1;
+var _mossprecott$lens_viz$Haskell$aliasRef = function (alias) {
 	return _mossprecott$lens_viz$Haskell$Constr(
-		_mossprecott$lens_viz$Haskell$TypeConstructor(
-			{name: _p2._0.name}));
+		_mossprecott$lens_viz$Haskell$TypeConstructor(alias.name));
 };
 var _mossprecott$lens_viz$Haskell$Var = function (a) {
 	return {ctor: 'Var', _0: a};
 };
 var _mossprecott$lens_viz$Haskell$substitute = F2(
 	function (pairs, t) {
-		var match = _elm_lang$core$List$head(
+		var byName = _elm_lang$core$Dict$fromList(
 			A2(
-				_elm_lang$core$List$filter,
-				function (_p3) {
-					var _p4 = _p3;
-					return _elm_lang$core$Native_Utils.eq(
-						_mossprecott$lens_viz$Haskell$Var(_p4._0),
-						t);
-				},
+				_elm_lang$core$List$map,
+				_elm_lang$core$Tuple$mapFirst(
+					function (v) {
+						return v.name;
+					}),
 				pairs));
-		var _p5 = {ctor: '_Tuple2', _0: match, _1: t};
-		if (_p5._0.ctor === 'Just') {
-			return _p5._0._0._1;
-		} else {
-			switch (_p5._1.ctor) {
-				case 'Unit':
-					return t;
-				case 'Var':
-					return t;
-				case 'Constr':
-					return t;
-				case 'App':
-					return A2(
-						_mossprecott$lens_viz$Haskell$App,
-						A2(_mossprecott$lens_viz$Haskell$substitute, pairs, _p5._1._0),
-						A2(_mossprecott$lens_viz$Haskell$substitute, pairs, _p5._1._1));
-				case 'Fn':
-					return A2(
-						_mossprecott$lens_viz$Haskell$Fn,
-						A2(_mossprecott$lens_viz$Haskell$substitute, pairs, _p5._1._0),
-						A2(_mossprecott$lens_viz$Haskell$substitute, pairs, _p5._1._1));
-				case 'Prefix':
-					return t;
-				default:
-					return A2(
-						_mossprecott$lens_viz$Haskell$Constrained,
-						_p5._1._0,
-						A2(_mossprecott$lens_viz$Haskell$substitute, pairs, _p5._1._1));
+		var newVar = function (v) {
+			var _p1 = A2(_elm_lang$core$Dict$get, v.name, byName);
+			if (_p1.ctor === 'Just') {
+				return _p1._0;
+			} else {
+				return _mossprecott$lens_viz$Haskell$TypeVar(v.name);
 			}
+		};
+		var subConstr = function (c) {
+			var _p2 = c;
+			if (_p2.ctor === 'TypeClassConstraint') {
+				return A2(
+					_mossprecott$lens_viz$Haskell$TypeClassConstraint,
+					_p2._0,
+					A2(_elm_lang$core$List$map, newVar, _p2._1));
+			} else {
+				return _elm_lang$core$Native_Utils.crashCase(
+					'Haskell',
+					{
+						start: {line: 122, column: 13},
+						end: {line: 127, column: 48}
+					},
+					_p2)('unimplemented');
+			}
+		};
+		var _p4 = t;
+		switch (_p4.ctor) {
+			case 'Unit':
+				return t;
+			case 'Var':
+				return _mossprecott$lens_viz$Haskell$Var(
+					newVar(_p4._0));
+			case 'Constr':
+				return t;
+			case 'App':
+				return A2(
+					_mossprecott$lens_viz$Haskell$App,
+					A2(_mossprecott$lens_viz$Haskell$substitute, pairs, _p4._0),
+					A2(_mossprecott$lens_viz$Haskell$substitute, pairs, _p4._1));
+			case 'Fn':
+				return A2(
+					_mossprecott$lens_viz$Haskell$Fn,
+					A2(_mossprecott$lens_viz$Haskell$substitute, pairs, _p4._0),
+					A2(_mossprecott$lens_viz$Haskell$substitute, pairs, _p4._1));
+			case 'Prefix':
+				return t;
+			default:
+				return A2(
+					_mossprecott$lens_viz$Haskell$Constrained,
+					_p4._0,
+					A2(_mossprecott$lens_viz$Haskell$substitute, pairs, _p4._1));
 		}
 	});
 var _mossprecott$lens_viz$Haskell$constraintToSrc = function (c) {
-	var _p6 = c;
-	if (_p6.ctor === 'TypeClassConstraint') {
+	var _p5 = c;
+	if (_p5.ctor === 'TypeClassConstraint') {
 		return _mossprecott$lens_viz$Type$Words(
 			A2(
 				_elm_lang$core$Basics_ops['++'],
 				{
 					ctor: '::',
-					_0: _mossprecott$lens_viz$Type$Name(_p6._0._0.name),
+					_0: _mossprecott$lens_viz$Type$Name(_p5._0.name),
 					_1: {ctor: '[]'}
 				},
 				A2(
 					_elm_lang$core$List$map,
-					function (_p7) {
+					function (_p6) {
 						return _mossprecott$lens_viz$Type$Name(
-							function (_p8) {
-								var _p9 = _p8;
-								return _p9._0.name;
-							}(_p7));
+							function (v) {
+								return v.name;
+							}(_p6));
 					},
-					_p6._1)));
+					_p5._1)));
 	} else {
 		return _elm_lang$core$Tuple$second(
-			A3(
+			A4(
 				_mossprecott$lens_viz$Type$parenthesize,
 				_mossprecott$lens_viz$Haskell$prec.infix,
 				_elm_lang$core$Maybe$Just(
 					_mossprecott$lens_viz$Type$Symbol('~')),
-				{
-					ctor: '::',
-					_0: _mossprecott$lens_viz$Haskell$typeToSrc(
-						_mossprecott$lens_viz$Haskell$Var(_p6._1)),
-					_1: {
-						ctor: '::',
-						_0: _mossprecott$lens_viz$Haskell$typeToSrc(_p6._0),
-						_1: {ctor: '[]'}
-					}
-				}));
+				_mossprecott$lens_viz$Haskell$typeToSrc(
+					_mossprecott$lens_viz$Haskell$Var(_p5._1)),
+				_mossprecott$lens_viz$Haskell$typeToSrc(_p5._0)));
 	}
 };
 var _mossprecott$lens_viz$Haskell$typeToSrc = function (t) {
-	var _p10 = t;
-	switch (_p10.ctor) {
+	var _p7 = t;
+	switch (_p7.ctor) {
 		case 'Unit':
 			return {
 				ctor: '_Tuple2',
@@ -8550,62 +8752,29 @@ var _mossprecott$lens_viz$Haskell$typeToSrc = function (t) {
 			return {
 				ctor: '_Tuple2',
 				_0: _mossprecott$lens_viz$Haskell$prec.atom,
-				_1: _mossprecott$lens_viz$Type$Name(_p10._0._0.name)
+				_1: _mossprecott$lens_viz$Type$Name(_p7._0.name)
 			};
 		case 'Constr':
 			return {
 				ctor: '_Tuple2',
 				_0: _mossprecott$lens_viz$Haskell$prec.atom,
-				_1: _mossprecott$lens_viz$Type$Name(_p10._0._0.name)
+				_1: _mossprecott$lens_viz$Type$Name(_p7._0.name)
 			};
 		case 'App':
-			var _p11 = _mossprecott$lens_viz$Haskell$typeToSrc(_p10._1);
-			var p = _p11._0;
-			var n = _p11._1;
-			var n2 = (_elm_lang$core$Native_Utils.cmp(p, _mossprecott$lens_viz$Haskell$prec.app) < 1) ? _mossprecott$lens_viz$Type$Juxt(
-				{
-					ctor: '::',
-					_0: _mossprecott$lens_viz$Type$Symbol('('),
-					_1: {
-						ctor: '::',
-						_0: n,
-						_1: {
-							ctor: '::',
-							_0: _mossprecott$lens_viz$Type$Symbol(')'),
-							_1: {ctor: '[]'}
-						}
-					}
-				}) : n;
-			return {
-				ctor: '_Tuple2',
-				_0: _mossprecott$lens_viz$Haskell$prec.app,
-				_1: _mossprecott$lens_viz$Type$Words(
-					{
-						ctor: '::',
-						_0: _elm_lang$core$Tuple$second(
-							_mossprecott$lens_viz$Haskell$typeToSrc(_p10._0)),
-						_1: {
-							ctor: '::',
-							_0: n2,
-							_1: {ctor: '[]'}
-						}
-					})
-			};
+			return A4(
+				_mossprecott$lens_viz$Type$parenthesizeLeftAssoc,
+				_mossprecott$lens_viz$Haskell$prec.app,
+				_elm_lang$core$Maybe$Nothing,
+				_mossprecott$lens_viz$Haskell$typeToSrc(_p7._0),
+				_mossprecott$lens_viz$Haskell$typeToSrc(_p7._1));
 		case 'Fn':
-			return A3(
-				_mossprecott$lens_viz$Type$parenthesize,
+			return A4(
+				_mossprecott$lens_viz$Type$parenthesizeRightAssoc,
 				_mossprecott$lens_viz$Haskell$prec.fn,
 				_elm_lang$core$Maybe$Just(
 					_mossprecott$lens_viz$Type$Symbol('→')),
-				{
-					ctor: '::',
-					_0: _mossprecott$lens_viz$Haskell$typeToSrc(_p10._0),
-					_1: {
-						ctor: '::',
-						_0: _mossprecott$lens_viz$Haskell$typeToSrc(_p10._1),
-						_1: {ctor: '[]'}
-					}
-				});
+				_mossprecott$lens_viz$Haskell$typeToSrc(_p7._0),
+				_mossprecott$lens_viz$Haskell$typeToSrc(_p7._1));
 		case 'Prefix':
 			return {
 				ctor: '_Tuple2',
@@ -8616,7 +8785,7 @@ var _mossprecott$lens_viz$Haskell$typeToSrc = function (t) {
 						_0: _mossprecott$lens_viz$Type$Symbol('('),
 						_1: {
 							ctor: '::',
-							_0: _mossprecott$lens_viz$Type$Symbol(_p10._0._0.symbol),
+							_0: _mossprecott$lens_viz$Type$Symbol('→'),
 							_1: {
 								ctor: '::',
 								_0: _mossprecott$lens_viz$Type$Symbol(')'),
@@ -8626,48 +8795,163 @@ var _mossprecott$lens_viz$Haskell$typeToSrc = function (t) {
 					})
 			};
 		default:
-			return A3(
+			return A4(
 				_mossprecott$lens_viz$Type$parenthesize,
 				_mossprecott$lens_viz$Haskell$prec.constrained,
 				_elm_lang$core$Maybe$Just(
 					_mossprecott$lens_viz$Type$Symbol('⇒')),
 				{
-					ctor: '::',
-					_0: {
-						ctor: '_Tuple2',
-						_0: _mossprecott$lens_viz$Haskell$prec.atom,
-						_1: _mossprecott$lens_viz$Type$Juxt(
+					ctor: '_Tuple2',
+					_0: _mossprecott$lens_viz$Haskell$prec.atom,
+					_1: _mossprecott$lens_viz$Type$Juxt(
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							{
+								ctor: '::',
+								_0: _mossprecott$lens_viz$Type$Symbol('('),
+								_1: {ctor: '[]'}
+							},
 							A2(
 								_elm_lang$core$Basics_ops['++'],
+								A2(
+									_elm_lang$core$List$intersperse,
+									_mossprecott$lens_viz$Type$Symbol(', '),
+									A2(_elm_lang$core$List$map, _mossprecott$lens_viz$Haskell$constraintToSrc, _p7._0)),
 								{
 									ctor: '::',
-									_0: _mossprecott$lens_viz$Type$Symbol('('),
+									_0: _mossprecott$lens_viz$Type$Symbol(')'),
 									_1: {ctor: '[]'}
-								},
-								A2(
-									_elm_lang$core$Basics_ops['++'],
-									A2(
-										_elm_lang$core$List$intersperse,
-										_mossprecott$lens_viz$Type$Symbol(', '),
-										A2(_elm_lang$core$List$map, _mossprecott$lens_viz$Haskell$constraintToSrc, _p10._0)),
-									{
-										ctor: '::',
-										_0: _mossprecott$lens_viz$Type$Symbol(')'),
-										_1: {ctor: '[]'}
-									})))
-					},
-					_1: {
-						ctor: '::',
-						_0: _mossprecott$lens_viz$Haskell$typeToSrc(_p10._1),
-						_1: {ctor: '[]'}
-					}
-				});
+								})))
+				},
+				_mossprecott$lens_viz$Haskell$typeToSrc(_p7._1));
 	}
 };
 var _mossprecott$lens_viz$Haskell$Unit = {ctor: 'Unit'};
-var _mossprecott$lens_viz$Haskell$TypeAlias = function (a) {
-	return {ctor: 'TypeAlias', _0: a};
-};
+var _mossprecott$lens_viz$Library$foldable = A2(
+	_mossprecott$lens_viz$Haskell$TypeClass,
+	'Foldable',
+	_mossprecott$lens_viz$Haskell$Supers(
+		{ctor: '[]'}));
+var _mossprecott$lens_viz$Library$ident = _mossprecott$lens_viz$Haskell$TypeConstructor('Identity');
+var _mossprecott$lens_viz$Library$const = _mossprecott$lens_viz$Haskell$TypeConstructor('Const');
+var _mossprecott$lens_viz$Library$contravariant = A2(
+	_mossprecott$lens_viz$Haskell$TypeClass,
+	'Contravariant',
+	_mossprecott$lens_viz$Haskell$Supers(
+		{ctor: '[]'}));
+var _mossprecott$lens_viz$Library$functor = A2(
+	_mossprecott$lens_viz$Haskell$TypeClass,
+	'Functor',
+	_mossprecott$lens_viz$Haskell$Supers(
+		{ctor: '[]'}));
+var _mossprecott$lens_viz$Library$applicative = A2(
+	_mossprecott$lens_viz$Haskell$TypeClass,
+	'Applicative',
+	_mossprecott$lens_viz$Haskell$Supers(
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Library$functor,
+			_1: {ctor: '[]'}
+		}));
+var _mossprecott$lens_viz$Library$monad = A2(
+	_mossprecott$lens_viz$Haskell$TypeClass,
+	'Monad',
+	_mossprecott$lens_viz$Haskell$Supers(
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Library$applicative,
+			_1: {ctor: '[]'}
+		}));
+var _mossprecott$lens_viz$Library$monadReader = A2(
+	_mossprecott$lens_viz$Haskell$TypeClass,
+	'MonadReader',
+	_mossprecott$lens_viz$Haskell$Supers(
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Library$monad,
+			_1: {ctor: '[]'}
+		}));
+var _mossprecott$lens_viz$Library$monadState = A2(
+	_mossprecott$lens_viz$Haskell$TypeClass,
+	'MonadState',
+	_mossprecott$lens_viz$Haskell$Supers(
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Library$monad,
+			_1: {ctor: '[]'}
+		}));
+var _mossprecott$lens_viz$Library$apply = A2(
+	_mossprecott$lens_viz$Haskell$TypeClass,
+	'Apply',
+	_mossprecott$lens_viz$Haskell$Supers(
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Library$functor,
+			_1: {ctor: '[]'}
+		}));
+var _mossprecott$lens_viz$Library$distributive = A2(
+	_mossprecott$lens_viz$Haskell$TypeClass,
+	'Distributive',
+	_mossprecott$lens_viz$Haskell$Supers(
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Library$functor,
+			_1: {ctor: '[]'}
+		}));
+var _mossprecott$lens_viz$Library$traversable = A2(
+	_mossprecott$lens_viz$Haskell$TypeClass,
+	'Traversable',
+	_mossprecott$lens_viz$Haskell$Supers(
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Library$functor,
+			_1: {
+				ctor: '::',
+				_0: _mossprecott$lens_viz$Library$foldable,
+				_1: {ctor: '[]'}
+			}
+		}));
+var _mossprecott$lens_viz$Library$settable = A2(
+	_mossprecott$lens_viz$Haskell$TypeClass,
+	'Settable',
+	_mossprecott$lens_viz$Haskell$Supers(
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Library$applicative,
+			_1: {
+				ctor: '::',
+				_0: _mossprecott$lens_viz$Library$distributive,
+				_1: {
+					ctor: '::',
+					_0: _mossprecott$lens_viz$Library$traversable,
+					_1: {ctor: '[]'}
+				}
+			}
+		}));
+var _mossprecott$lens_viz$Library$profunctor = A2(
+	_mossprecott$lens_viz$Haskell$TypeClass,
+	'Profunctor',
+	_mossprecott$lens_viz$Haskell$Supers(
+		{ctor: '[]'}));
+var _mossprecott$lens_viz$Library$choice = A2(
+	_mossprecott$lens_viz$Haskell$TypeClass,
+	'Choice',
+	_mossprecott$lens_viz$Haskell$Supers(
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Library$profunctor,
+			_1: {ctor: '[]'}
+		}));
+var _mossprecott$lens_viz$Library$isDefined = F2(
+	function (tc, ts) {
+		return _elm_lang$core$Native_Utils.eq(
+			ts,
+			{
+				ctor: '::',
+				_0: _mossprecott$lens_viz$Haskell$Prefix(_mossprecott$lens_viz$Haskell$FnOp),
+				_1: {ctor: '[]'}
+			}) && (_elm_lang$core$Native_Utils.eq(tc, _mossprecott$lens_viz$Library$profunctor) || _elm_lang$core$Native_Utils.eq(tc, _mossprecott$lens_viz$Library$choice));
+	});
 var _mossprecott$lens_viz$Lens$classesToSrc = F2(
 	function (cs, v) {
 		return _mossprecott$lens_viz$Type$Juxt(
@@ -8689,39 +8973,34 @@ var _mossprecott$lens_viz$Lens$classesToSrc = F2(
 					},
 					cs)));
 	});
-var _mossprecott$lens_viz$Lens$regular = function (o) {
-	var fnToPrefix = function (n) {
-		var _p0 = n;
-		if (_p0.ctor === 'Fn') {
-			return _elm_lang$core$Maybe$Just(
-				A2(
-					_mossprecott$lens_viz$Haskell$app,
-					_mossprecott$lens_viz$Haskell$Prefix(
-						_mossprecott$lens_viz$Haskell$Op(
-							{symbol: '→'})),
-					{
-						ctor: '::',
-						_0: _p0._0,
-						_1: {
-							ctor: '::',
-							_0: _p0._1,
-							_1: {ctor: '[]'}
-						}
-					}));
-		} else {
-			return _elm_lang$core$Maybe$Nothing;
+var _mossprecott$lens_viz$Lens$irregular = function (t) {
+	var _p0 = t;
+	_v0_3:
+	do {
+		switch (_p0.ctor) {
+			case 'App':
+				if ((_p0._0.ctor === 'App') && (_p0._0._0.ctor === 'Prefix')) {
+					return _elm_lang$core$Maybe$Just(
+						A2(_mossprecott$lens_viz$Haskell$Fn, _p0._0._1, _p0._1));
+				} else {
+					break _v0_3;
+				}
+			case 'Fn':
+				return A3(
+					_elm_lang$core$Maybe$map2,
+					_mossprecott$lens_viz$Haskell$Fn,
+					_mossprecott$lens_viz$Lens$irregular(_p0._0),
+					_mossprecott$lens_viz$Lens$irregular(_p0._1));
+			case 'Constrained':
+				return A2(
+					_elm_lang$core$Maybe$map,
+					_mossprecott$lens_viz$Haskell$Constrained(_p0._0),
+					_mossprecott$lens_viz$Lens$irregular(_p0._1));
+			default:
+				break _v0_3;
 		}
-	};
-	return A3(
-		_elm_lang$core$Maybe$map2,
-		F2(
-			function (from, to) {
-				return _elm_lang$core$Native_Utils.update(
-					o,
-					{from: from, to: to});
-			}),
-		fnToPrefix(o.from),
-		fnToPrefix(o.to));
+	} while(false);
+	return _elm_lang$core$Maybe$Nothing;
 };
 var _mossprecott$lens_viz$Lens$orSame = F2(
 	function (f, x) {
@@ -8730,72 +9009,35 @@ var _mossprecott$lens_viz$Lens$orSame = F2(
 			x,
 			f(x));
 	});
-var _mossprecott$lens_viz$Lens$contravariant = _mossprecott$lens_viz$Haskell$TypeClass(
-	{
-		name: 'Contravariant',
-		supers: {ctor: '[]'}
+var _mossprecott$lens_viz$Lens$composeMany = function (optics) {
+	return _elm_lang$core$Native_Utils.crash(
+		'Lens',
+		{
+			start: {line: 213, column: 5},
+			end: {line: 213, column: 16}
+		})('not implemented');
+};
+var _mossprecott$lens_viz$Lens$compose = F2(
+	function (left, right) {
+		return _elm_lang$core$Native_Utils.crash(
+			'Lens',
+			{
+				start: {line: 208, column: 5},
+				end: {line: 208, column: 16}
+			})('not implemented');
 	});
-var _mossprecott$lens_viz$Lens$functor = _mossprecott$lens_viz$Haskell$TypeClass(
-	{
-		name: 'Functor',
-		supers: {ctor: '[]'}
-	});
-var _mossprecott$lens_viz$Lens$applicative = _mossprecott$lens_viz$Haskell$TypeClass(
-	{
-		name: 'Applicative',
-		supers: {
-			ctor: '::',
-			_0: _mossprecott$lens_viz$Lens$functor,
-			_1: {ctor: '[]'}
-		}
-	});
-var _mossprecott$lens_viz$Lens$apply = _mossprecott$lens_viz$Haskell$TypeClass(
-	{
-		name: 'Apply',
-		supers: {
-			ctor: '::',
-			_0: _mossprecott$lens_viz$Lens$functor,
-			_1: {ctor: '[]'}
-		}
-	});
-var _mossprecott$lens_viz$Lens$profunctor = _mossprecott$lens_viz$Haskell$TypeClass(
-	{
-		name: 'Profunctor',
-		supers: {ctor: '[]'}
-	});
-var _mossprecott$lens_viz$Lens$choice = _mossprecott$lens_viz$Haskell$TypeClass(
-	{
-		name: 'Choice',
-		supers: {
-			ctor: '::',
-			_0: _mossprecott$lens_viz$Lens$profunctor,
-			_1: {ctor: '[]'}
-		}
-	});
-var _mossprecott$lens_viz$Lens$b = _mossprecott$lens_viz$Haskell$TypeVar(
-	{name: 'b'});
-var _mossprecott$lens_viz$Lens$a = _mossprecott$lens_viz$Haskell$TypeVar(
-	{name: 'a'});
-var _mossprecott$lens_viz$Lens$t = _mossprecott$lens_viz$Haskell$TypeVar(
-	{name: 't'});
-var _mossprecott$lens_viz$Lens$s = _mossprecott$lens_viz$Haskell$TypeVar(
-	{name: 's'});
+var _mossprecott$lens_viz$Lens$b = _mossprecott$lens_viz$Haskell$TypeVar('b');
+var _mossprecott$lens_viz$Lens$a = _mossprecott$lens_viz$Haskell$TypeVar('a');
+var _mossprecott$lens_viz$Lens$t = _mossprecott$lens_viz$Haskell$TypeVar('t');
+var _mossprecott$lens_viz$Lens$s = _mossprecott$lens_viz$Haskell$TypeVar('s');
 var _mossprecott$lens_viz$Lens$simplify = function (o) {
 	var subs = _mossprecott$lens_viz$Haskell$substitute(
 		{
 			ctor: '::',
-			_0: {
-				ctor: '_Tuple2',
-				_0: _mossprecott$lens_viz$Lens$t,
-				_1: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s)
-			},
+			_0: {ctor: '_Tuple2', _0: _mossprecott$lens_viz$Lens$t, _1: _mossprecott$lens_viz$Lens$s},
 			_1: {
 				ctor: '::',
-				_0: {
-					ctor: '_Tuple2',
-					_0: _mossprecott$lens_viz$Lens$b,
-					_1: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a)
-				},
+				_0: {ctor: '_Tuple2', _0: _mossprecott$lens_viz$Lens$b, _1: _mossprecott$lens_viz$Lens$a},
 				_1: {ctor: '[]'}
 			}
 		});
@@ -8815,10 +9057,8 @@ var _mossprecott$lens_viz$Lens$simplify = function (o) {
 				to: subs(o.to)
 			})) : _elm_lang$core$Maybe$Nothing;
 };
-var _mossprecott$lens_viz$Lens$f = _mossprecott$lens_viz$Haskell$TypeVar(
-	{name: 'f'});
-var _mossprecott$lens_viz$Lens$p = _mossprecott$lens_viz$Haskell$TypeVar(
-	{name: 'p'});
+var _mossprecott$lens_viz$Lens$f = _mossprecott$lens_viz$Haskell$TypeVar('f');
+var _mossprecott$lens_viz$Lens$p = _mossprecott$lens_viz$Haskell$TypeVar('p');
 var _mossprecott$lens_viz$Lens$opticType = function (o) {
 	return A2(
 		_mossprecott$lens_viz$Haskell$Constrained,
@@ -8852,130 +9092,139 @@ var _mossprecott$lens_viz$Lens$opticType = function (o) {
 				o.fClasses)),
 		A2(_mossprecott$lens_viz$Haskell$Fn, o.from, o.to));
 };
-var _mossprecott$lens_viz$Lens$opticToSrc = function (o) {
-	return _mossprecott$lens_viz$Type$Words(
-		A2(
-			_elm_lang$core$Basics_ops['++'],
-			{
-				ctor: '::',
-				_0: _mossprecott$lens_viz$Type$Name(o.name),
-				_1: {ctor: '[]'}
-			},
+var _mossprecott$lens_viz$Lens$opticToSrc = F2(
+	function (prepare, o) {
+		return _mossprecott$lens_viz$Type$Words(
 			A2(
 				_elm_lang$core$Basics_ops['++'],
-				A2(
-					_elm_lang$core$List$map,
-					function (_p1) {
-						var _p2 = _p1;
-						return _mossprecott$lens_viz$Type$Name(_p2._0.name);
-					},
-					o.params),
 				{
 					ctor: '::',
-					_0: _mossprecott$lens_viz$Type$Symbol('::'),
+					_0: _mossprecott$lens_viz$Type$Keyword('type'),
 					_1: {
 						ctor: '::',
-						_0: _mossprecott$lens_viz$Type$Keyword('forall'),
+						_0: _mossprecott$lens_viz$Type$Name(o.name),
+						_1: {ctor: '[]'}
+					}
+				},
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					A2(
+						_elm_lang$core$List$map,
+						function (v) {
+							return _mossprecott$lens_viz$Type$Name(v.name);
+						},
+						o.params),
+					{
+						ctor: '::',
+						_0: _mossprecott$lens_viz$Type$Symbol('='),
 						_1: {
 							ctor: '::',
-							_0: _mossprecott$lens_viz$Type$Name('p'),
+							_0: _mossprecott$lens_viz$Type$Keyword('forall'),
 							_1: {
 								ctor: '::',
-								_0: _mossprecott$lens_viz$Type$Name('f'),
+								_0: _mossprecott$lens_viz$Type$Name('p'),
 								_1: {
 									ctor: '::',
-									_0: _mossprecott$lens_viz$Type$Symbol('.'),
+									_0: _mossprecott$lens_viz$Type$Name('f'),
 									_1: {
 										ctor: '::',
-										_0: _elm_lang$core$Tuple$second(
-											_mossprecott$lens_viz$Haskell$typeToSrc(
-												_mossprecott$lens_viz$Lens$opticType(o))),
-										_1: {ctor: '[]'}
+										_0: _mossprecott$lens_viz$Type$Symbol('.'),
+										_1: {
+											ctor: '::',
+											_0: function (_p1) {
+												return _elm_lang$core$Tuple$second(
+													_mossprecott$lens_viz$Haskell$typeToSrc(
+														prepare(
+															_mossprecott$lens_viz$Lens$opticType(_p1))));
+											}(o),
+											_1: {ctor: '[]'}
+										}
 									}
 								}
 							}
 						}
-					}
-				})));
-};
-var _mossprecott$lens_viz$Lens$opticToSrcRow = function (o) {
-	return {
-		ctor: '::',
-		_0: _mossprecott$lens_viz$Type$Name(o.name),
-		_1: {
+					})));
+	});
+var _mossprecott$lens_viz$Lens$opticToSrcRow = F2(
+	function (prepare, o) {
+		return {
 			ctor: '::',
-			_0: _mossprecott$lens_viz$Type$Name('s'),
+			_0: _mossprecott$lens_viz$Type$Keyword('type'),
 			_1: {
 				ctor: '::',
-				_0: A2(_elm_lang$core$List$member, _mossprecott$lens_viz$Lens$t, o.params) ? _mossprecott$lens_viz$Type$Name('t') : _mossprecott$lens_viz$Type$Symbol(''),
+				_0: _mossprecott$lens_viz$Type$Name(o.name),
 				_1: {
 					ctor: '::',
-					_0: _mossprecott$lens_viz$Type$Name('a'),
+					_0: _mossprecott$lens_viz$Type$Name('s'),
 					_1: {
 						ctor: '::',
-						_0: A2(_elm_lang$core$List$member, _mossprecott$lens_viz$Lens$b, o.params) ? _mossprecott$lens_viz$Type$Name('b') : _mossprecott$lens_viz$Type$Symbol(''),
+						_0: A2(_elm_lang$core$List$member, _mossprecott$lens_viz$Lens$t, o.params) ? _mossprecott$lens_viz$Type$Name('t') : _mossprecott$lens_viz$Type$Symbol(''),
 						_1: {
 							ctor: '::',
-							_0: _mossprecott$lens_viz$Type$Symbol('::'),
+							_0: _mossprecott$lens_viz$Type$Name('a'),
 							_1: {
 								ctor: '::',
-								_0: _mossprecott$lens_viz$Type$Keyword('forall'),
+								_0: A2(_elm_lang$core$List$member, _mossprecott$lens_viz$Lens$b, o.params) ? _mossprecott$lens_viz$Type$Name('b') : _mossprecott$lens_viz$Type$Symbol(''),
 								_1: {
 									ctor: '::',
-									_0: _mossprecott$lens_viz$Type$Name('p'),
+									_0: _mossprecott$lens_viz$Type$Symbol('='),
 									_1: {
 										ctor: '::',
-										_0: _mossprecott$lens_viz$Type$Name('f'),
+										_0: _mossprecott$lens_viz$Type$Keyword('forall'),
 										_1: {
 											ctor: '::',
-											_0: _mossprecott$lens_viz$Type$Symbol('.'),
+											_0: _mossprecott$lens_viz$Type$Name('p'),
 											_1: {
 												ctor: '::',
-												_0: _mossprecott$lens_viz$Type$Symbol('('),
+												_0: _mossprecott$lens_viz$Type$Name('f'),
 												_1: {
 													ctor: '::',
-													_0: function () {
-														var n = A2(_mossprecott$lens_viz$Lens$classesToSrc, o.pClasses, _mossprecott$lens_viz$Lens$p);
-														return (_elm_lang$core$List$isEmpty(o.pClasses) || _elm_lang$core$List$isEmpty(o.fClasses)) ? n : _mossprecott$lens_viz$Type$Juxt(
-															{
-																ctor: '::',
-																_0: n,
-																_1: {
-																	ctor: '::',
-																	_0: _mossprecott$lens_viz$Type$Symbol(','),
-																	_1: {ctor: '[]'}
-																}
-															});
-													}(),
+													_0: _mossprecott$lens_viz$Type$Symbol('.'),
 													_1: {
 														ctor: '::',
-														_0: A2(_mossprecott$lens_viz$Lens$classesToSrc, o.fClasses, _mossprecott$lens_viz$Lens$f),
+														_0: _mossprecott$lens_viz$Type$Symbol('('),
 														_1: {
 															ctor: '::',
-															_0: _mossprecott$lens_viz$Type$Symbol(')'),
-															_1: {
-																ctor: '::',
-																_0: _mossprecott$lens_viz$Type$Symbol('⇒'),
-																_1: {
-																	ctor: '::',
-																	_0: _elm_lang$core$Tuple$second(
-																		A3(
-																			_mossprecott$lens_viz$Type$parenthesize,
-																			_mossprecott$lens_viz$Haskell$prec.fn,
-																			_elm_lang$core$Maybe$Nothing,
-																			{
-																				ctor: '::',
-																				_0: _mossprecott$lens_viz$Haskell$typeToSrc(o.from),
-																				_1: {ctor: '[]'}
-																			})),
-																	_1: {
+															_0: function () {
+																var n = A2(_mossprecott$lens_viz$Lens$classesToSrc, o.pClasses, _mossprecott$lens_viz$Lens$p);
+																return (_elm_lang$core$List$isEmpty(o.pClasses) || _elm_lang$core$List$isEmpty(o.fClasses)) ? n : _mossprecott$lens_viz$Type$Juxt(
+																	{
 																		ctor: '::',
-																		_0: _mossprecott$lens_viz$Type$Symbol('→'),
+																		_0: n,
 																		_1: {
 																			ctor: '::',
-																			_0: _elm_lang$core$Tuple$second(
-																				_mossprecott$lens_viz$Haskell$typeToSrc(o.to)),
+																			_0: _mossprecott$lens_viz$Type$Symbol(','),
 																			_1: {ctor: '[]'}
+																		}
+																	});
+															}(),
+															_1: {
+																ctor: '::',
+																_0: A2(_mossprecott$lens_viz$Lens$classesToSrc, o.fClasses, _mossprecott$lens_viz$Lens$f),
+																_1: {
+																	ctor: '::',
+																	_0: _mossprecott$lens_viz$Type$Symbol(')'),
+																	_1: {
+																		ctor: '::',
+																		_0: _mossprecott$lens_viz$Type$Symbol('⇒'),
+																		_1: {
+																			ctor: '::',
+																			_0: A2(
+																				_mossprecott$lens_viz$Type$parenthesizeOne,
+																				_mossprecott$lens_viz$Haskell$prec.fn,
+																				_mossprecott$lens_viz$Haskell$typeToSrc(
+																					prepare(o.from))),
+																			_1: {
+																				ctor: '::',
+																				_0: _mossprecott$lens_viz$Type$Symbol('→'),
+																				_1: {
+																					ctor: '::',
+																					_0: _elm_lang$core$Tuple$second(
+																						_mossprecott$lens_viz$Haskell$typeToSrc(
+																							prepare(o.to))),
+																					_1: {ctor: '[]'}
+																				}
+																			}
 																		}
 																	}
 																}
@@ -8992,9 +9241,16 @@ var _mossprecott$lens_viz$Lens$opticToSrcRow = function (o) {
 					}
 				}
 			}
-		}
-	};
-};
+		};
+	});
+var _mossprecott$lens_viz$Lens$FnBased = F4(
+	function (a, b, c, d) {
+		return {fClasses: a, f: b, s: c, a: d};
+	});
+var _mossprecott$lens_viz$Lens$VarBased = F4(
+	function (a, b, c, d) {
+		return {pClasses: a, fClasses: b, s: c, a: d};
+	});
 var _mossprecott$lens_viz$Lens$Optic = F6(
 	function (a, b, c, d, e, f) {
 		return {name: a, params: b, pClasses: c, fClasses: d, from: e, to: f};
@@ -9022,23 +9278,39 @@ var _mossprecott$lens_viz$Lens$lens = A6(
 	{ctor: '[]'},
 	{
 		ctor: '::',
-		_0: _mossprecott$lens_viz$Lens$functor,
+		_0: _mossprecott$lens_viz$Library$functor,
 		_1: {ctor: '[]'}
 	},
 	A2(
-		_mossprecott$lens_viz$Haskell$Fn,
-		_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a),
-		A2(
-			_mossprecott$lens_viz$Haskell$App,
-			_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$f),
-			_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$b))),
+		_mossprecott$lens_viz$Haskell$app,
+		_mossprecott$lens_viz$Haskell$Prefix(_mossprecott$lens_viz$Haskell$FnOp),
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_mossprecott$lens_viz$Haskell$App,
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$f),
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$b)),
+				_1: {ctor: '[]'}
+			}
+		}),
 	A2(
-		_mossprecott$lens_viz$Haskell$Fn,
-		_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s),
-		A2(
-			_mossprecott$lens_viz$Haskell$App,
-			_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$f),
-			_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$t))));
+		_mossprecott$lens_viz$Haskell$app,
+		_mossprecott$lens_viz$Haskell$Prefix(_mossprecott$lens_viz$Haskell$FnOp),
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_mossprecott$lens_viz$Haskell$App,
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$f),
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$t)),
+				_1: {ctor: '[]'}
+			}
+		}));
 var _mossprecott$lens_viz$Lens$iso = A6(
 	_mossprecott$lens_viz$Lens$Optic,
 	'Iso',
@@ -9061,12 +9333,12 @@ var _mossprecott$lens_viz$Lens$iso = A6(
 	},
 	{
 		ctor: '::',
-		_0: _mossprecott$lens_viz$Lens$profunctor,
+		_0: _mossprecott$lens_viz$Library$profunctor,
 		_1: {ctor: '[]'}
 	},
 	{
 		ctor: '::',
-		_0: _mossprecott$lens_viz$Lens$functor,
+		_0: _mossprecott$lens_viz$Library$functor,
 		_1: {ctor: '[]'}
 	},
 	A2(
@@ -9121,12 +9393,12 @@ var _mossprecott$lens_viz$Lens$prism = A6(
 	},
 	{
 		ctor: '::',
-		_0: _mossprecott$lens_viz$Lens$choice,
+		_0: _mossprecott$lens_viz$Library$choice,
 		_1: {ctor: '[]'}
 	},
 	{
 		ctor: '::',
-		_0: _mossprecott$lens_viz$Lens$applicative,
+		_0: _mossprecott$lens_viz$Library$applicative,
 		_1: {ctor: '[]'}
 	},
 	A2(
@@ -9182,23 +9454,56 @@ var _mossprecott$lens_viz$Lens$traversal = A6(
 	{ctor: '[]'},
 	{
 		ctor: '::',
-		_0: _mossprecott$lens_viz$Lens$applicative,
+		_0: _mossprecott$lens_viz$Library$applicative,
 		_1: {ctor: '[]'}
 	},
 	A2(
-		_mossprecott$lens_viz$Haskell$Fn,
-		_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a),
-		A2(
-			_mossprecott$lens_viz$Haskell$App,
-			_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$f),
-			_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$b))),
+		_mossprecott$lens_viz$Haskell$app,
+		_mossprecott$lens_viz$Haskell$Prefix(_mossprecott$lens_viz$Haskell$FnOp),
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_mossprecott$lens_viz$Haskell$App,
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$f),
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$b)),
+				_1: {ctor: '[]'}
+			}
+		}),
 	A2(
-		_mossprecott$lens_viz$Haskell$Fn,
-		_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s),
-		A2(
-			_mossprecott$lens_viz$Haskell$App,
-			_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$f),
-			_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$t))));
+		_mossprecott$lens_viz$Haskell$app,
+		_mossprecott$lens_viz$Haskell$Prefix(_mossprecott$lens_viz$Haskell$FnOp),
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_mossprecott$lens_viz$Haskell$App,
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$f),
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$t)),
+				_1: {ctor: '[]'}
+			}
+		}));
+var _mossprecott$lens_viz$Lens$primaryOptics = {
+	ctor: '::',
+	_0: _mossprecott$lens_viz$Lens$lens,
+	_1: {
+		ctor: '::',
+		_0: _mossprecott$lens_viz$Lens$iso,
+		_1: {
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Lens$prism,
+			_1: {
+				ctor: '::',
+				_0: _mossprecott$lens_viz$Lens$traversal,
+				_1: {ctor: '[]'}
+			}
+		}
+	}
+};
 var _mossprecott$lens_viz$Lens$fold = A6(
 	_mossprecott$lens_viz$Lens$Optic,
 	'Fold',
@@ -9214,27 +9519,43 @@ var _mossprecott$lens_viz$Lens$fold = A6(
 	{ctor: '[]'},
 	{
 		ctor: '::',
-		_0: _mossprecott$lens_viz$Lens$contravariant,
+		_0: _mossprecott$lens_viz$Library$contravariant,
 		_1: {
 			ctor: '::',
-			_0: _mossprecott$lens_viz$Lens$applicative,
+			_0: _mossprecott$lens_viz$Library$applicative,
 			_1: {ctor: '[]'}
 		}
 	},
 	A2(
-		_mossprecott$lens_viz$Haskell$Fn,
-		_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a),
-		A2(
-			_mossprecott$lens_viz$Haskell$App,
-			_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$f),
-			_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a))),
+		_mossprecott$lens_viz$Haskell$app,
+		_mossprecott$lens_viz$Haskell$Prefix(_mossprecott$lens_viz$Haskell$FnOp),
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_mossprecott$lens_viz$Haskell$App,
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$f),
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a)),
+				_1: {ctor: '[]'}
+			}
+		}),
 	A2(
-		_mossprecott$lens_viz$Haskell$Fn,
-		_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s),
-		A2(
-			_mossprecott$lens_viz$Haskell$App,
-			_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$f),
-			_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s))));
+		_mossprecott$lens_viz$Haskell$app,
+		_mossprecott$lens_viz$Haskell$Prefix(_mossprecott$lens_viz$Haskell$FnOp),
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_mossprecott$lens_viz$Haskell$App,
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$f),
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s)),
+				_1: {ctor: '[]'}
+			}
+		}));
 var _mossprecott$lens_viz$Lens$fold1 = A6(
 	_mossprecott$lens_viz$Lens$Optic,
 	'Fold1',
@@ -9250,51 +9571,364 @@ var _mossprecott$lens_viz$Lens$fold1 = A6(
 	{ctor: '[]'},
 	{
 		ctor: '::',
-		_0: _mossprecott$lens_viz$Lens$contravariant,
+		_0: _mossprecott$lens_viz$Library$contravariant,
 		_1: {
 			ctor: '::',
-			_0: _mossprecott$lens_viz$Lens$apply,
+			_0: _mossprecott$lens_viz$Library$apply,
 			_1: {ctor: '[]'}
 		}
 	},
 	A2(
-		_mossprecott$lens_viz$Haskell$Fn,
-		_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a),
-		A2(
-			_mossprecott$lens_viz$Haskell$App,
-			_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$f),
-			_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a))),
-	A2(
-		_mossprecott$lens_viz$Haskell$Fn,
-		_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s),
-		A2(
-			_mossprecott$lens_viz$Haskell$App,
-			_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$f),
-			_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s))));
-var _mossprecott$lens_viz$Lens$allOptics = {
-	ctor: '::',
-	_0: _mossprecott$lens_viz$Lens$lens,
-	_1: {
-		ctor: '::',
-		_0: _mossprecott$lens_viz$Lens$iso,
-		_1: {
+		_mossprecott$lens_viz$Haskell$app,
+		_mossprecott$lens_viz$Haskell$Prefix(_mossprecott$lens_viz$Haskell$FnOp),
+		{
 			ctor: '::',
-			_0: _mossprecott$lens_viz$Lens$prism,
+			_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a),
 			_1: {
 				ctor: '::',
-				_0: _mossprecott$lens_viz$Lens$traversal,
+				_0: A2(
+					_mossprecott$lens_viz$Haskell$App,
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$f),
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a)),
+				_1: {ctor: '[]'}
+			}
+		}),
+	A2(
+		_mossprecott$lens_viz$Haskell$app,
+		_mossprecott$lens_viz$Haskell$Prefix(_mossprecott$lens_viz$Haskell$FnOp),
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_mossprecott$lens_viz$Haskell$App,
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$f),
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s)),
+				_1: {ctor: '[]'}
+			}
+		}));
+var _mossprecott$lens_viz$Lens$getter = A6(
+	_mossprecott$lens_viz$Lens$Optic,
+	'Getter',
+	{
+		ctor: '::',
+		_0: _mossprecott$lens_viz$Lens$s,
+		_1: {
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Lens$a,
+			_1: {ctor: '[]'}
+		}
+	},
+	{ctor: '[]'},
+	{
+		ctor: '::',
+		_0: _mossprecott$lens_viz$Library$contravariant,
+		_1: {
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Library$functor,
+			_1: {ctor: '[]'}
+		}
+	},
+	A2(
+		_mossprecott$lens_viz$Haskell$app,
+		_mossprecott$lens_viz$Haskell$Prefix(_mossprecott$lens_viz$Haskell$FnOp),
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_mossprecott$lens_viz$Haskell$App,
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$f),
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a)),
+				_1: {ctor: '[]'}
+			}
+		}),
+	A2(
+		_mossprecott$lens_viz$Haskell$app,
+		_mossprecott$lens_viz$Haskell$Prefix(_mossprecott$lens_viz$Haskell$FnOp),
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_mossprecott$lens_viz$Haskell$App,
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$f),
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s)),
+				_1: {ctor: '[]'}
+			}
+		}));
+var _mossprecott$lens_viz$Lens$setter = A6(
+	_mossprecott$lens_viz$Lens$Optic,
+	'Setter',
+	{
+		ctor: '::',
+		_0: _mossprecott$lens_viz$Lens$s,
+		_1: {
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Lens$t,
+			_1: {
+				ctor: '::',
+				_0: _mossprecott$lens_viz$Lens$a,
 				_1: {
 					ctor: '::',
-					_0: _mossprecott$lens_viz$Lens$fold,
+					_0: _mossprecott$lens_viz$Lens$b,
+					_1: {ctor: '[]'}
+				}
+			}
+		}
+	},
+	{ctor: '[]'},
+	{
+		ctor: '::',
+		_0: _mossprecott$lens_viz$Library$settable,
+		_1: {ctor: '[]'}
+	},
+	A2(
+		_mossprecott$lens_viz$Haskell$app,
+		_mossprecott$lens_viz$Haskell$Prefix(_mossprecott$lens_viz$Haskell$FnOp),
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_mossprecott$lens_viz$Haskell$App,
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$f),
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$b)),
+				_1: {ctor: '[]'}
+			}
+		}),
+	A2(
+		_mossprecott$lens_viz$Haskell$app,
+		_mossprecott$lens_viz$Haskell$Prefix(_mossprecott$lens_viz$Haskell$FnOp),
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_mossprecott$lens_viz$Haskell$App,
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$f),
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$t)),
+				_1: {ctor: '[]'}
+			}
+		}));
+var _mossprecott$lens_viz$Lens$extraOptics = {
+	ctor: '::',
+	_0: _mossprecott$lens_viz$Lens$getter,
+	_1: {
+		ctor: '::',
+		_0: _mossprecott$lens_viz$Lens$setter,
+		_1: {
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Lens$fold,
+			_1: {
+				ctor: '::',
+				_0: _mossprecott$lens_viz$Lens$fold1,
+				_1: {ctor: '[]'}
+			}
+		}
+	}
+};
+var _mossprecott$lens_viz$Lens$getting = A6(
+	_mossprecott$lens_viz$Lens$Optic,
+	'Getting',
+	{
+		ctor: '::',
+		_0: _mossprecott$lens_viz$Haskell$TypeVar('r'),
+		_1: {
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Lens$s,
+			_1: {
+				ctor: '::',
+				_0: _mossprecott$lens_viz$Lens$a,
+				_1: {ctor: '[]'}
+			}
+		}
+	},
+	{ctor: '[]'},
+	{ctor: '[]'},
+	A2(
+		_mossprecott$lens_viz$Haskell$app,
+		_mossprecott$lens_viz$Haskell$Prefix(_mossprecott$lens_viz$Haskell$FnOp),
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_mossprecott$lens_viz$Haskell$app,
+					_mossprecott$lens_viz$Haskell$Constr(_mossprecott$lens_viz$Library$const),
+					{
+						ctor: '::',
+						_0: _mossprecott$lens_viz$Haskell$Var(
+							_mossprecott$lens_viz$Haskell$TypeVar('r')),
+						_1: {
+							ctor: '::',
+							_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a),
+							_1: {ctor: '[]'}
+						}
+					}),
+				_1: {ctor: '[]'}
+			}
+		}),
+	A2(
+		_mossprecott$lens_viz$Haskell$app,
+		_mossprecott$lens_viz$Haskell$Prefix(_mossprecott$lens_viz$Haskell$FnOp),
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_mossprecott$lens_viz$Haskell$app,
+					_mossprecott$lens_viz$Haskell$Constr(_mossprecott$lens_viz$Library$const),
+					{
+						ctor: '::',
+						_0: _mossprecott$lens_viz$Haskell$Var(
+							_mossprecott$lens_viz$Haskell$TypeVar('r')),
+						_1: {
+							ctor: '::',
+							_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s),
+							_1: {ctor: '[]'}
+						}
+					}),
+				_1: {ctor: '[]'}
+			}
+		}));
+var _mossprecott$lens_viz$Lens$setting = A6(
+	_mossprecott$lens_viz$Lens$Optic,
+	'Setting',
+	{
+		ctor: '::',
+		_0: _mossprecott$lens_viz$Lens$p,
+		_1: {
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Lens$s,
+			_1: {
+				ctor: '::',
+				_0: _mossprecott$lens_viz$Lens$t,
+				_1: {
+					ctor: '::',
+					_0: _mossprecott$lens_viz$Lens$a,
 					_1: {
 						ctor: '::',
-						_0: _mossprecott$lens_viz$Lens$fold1,
+						_0: _mossprecott$lens_viz$Lens$b,
 						_1: {ctor: '[]'}
 					}
 				}
 			}
 		}
+	},
+	{ctor: '[]'},
+	{ctor: '[]'},
+	A2(
+		_mossprecott$lens_viz$Haskell$app,
+		_mossprecott$lens_viz$Haskell$Prefix(_mossprecott$lens_viz$Haskell$FnOp),
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_mossprecott$lens_viz$Haskell$App,
+					_mossprecott$lens_viz$Haskell$Constr(_mossprecott$lens_viz$Library$ident),
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a)),
+				_1: {ctor: '[]'}
+			}
+		}),
+	A2(
+		_mossprecott$lens_viz$Haskell$app,
+		_mossprecott$lens_viz$Haskell$Prefix(_mossprecott$lens_viz$Haskell$FnOp),
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_mossprecott$lens_viz$Haskell$App,
+					_mossprecott$lens_viz$Haskell$Constr(_mossprecott$lens_viz$Library$ident),
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s)),
+				_1: {ctor: '[]'}
+			}
+		}));
+var _mossprecott$lens_viz$Lens$aSetter = A6(
+	_mossprecott$lens_viz$Lens$Optic,
+	'ASetter',
+	{
+		ctor: '::',
+		_0: _mossprecott$lens_viz$Lens$s,
+		_1: {
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Lens$t,
+			_1: {
+				ctor: '::',
+				_0: _mossprecott$lens_viz$Lens$a,
+				_1: {
+					ctor: '::',
+					_0: _mossprecott$lens_viz$Lens$b,
+					_1: {ctor: '[]'}
+				}
+			}
+		}
+	},
+	{ctor: '[]'},
+	{ctor: '[]'},
+	A2(
+		_mossprecott$lens_viz$Haskell$app,
+		_mossprecott$lens_viz$Haskell$Prefix(_mossprecott$lens_viz$Haskell$FnOp),
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_mossprecott$lens_viz$Haskell$App,
+					_mossprecott$lens_viz$Haskell$Constr(_mossprecott$lens_viz$Library$ident),
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$b)),
+				_1: {ctor: '[]'}
+			}
+		}),
+	A2(
+		_mossprecott$lens_viz$Haskell$app,
+		_mossprecott$lens_viz$Haskell$Prefix(_mossprecott$lens_viz$Haskell$FnOp),
+		{
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_mossprecott$lens_viz$Haskell$App,
+					_mossprecott$lens_viz$Haskell$Constr(_mossprecott$lens_viz$Library$ident),
+					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$t)),
+				_1: {ctor: '[]'}
+			}
+		}));
+var _mossprecott$lens_viz$Lens$argumentOptics = {
+	ctor: '::',
+	_0: _mossprecott$lens_viz$Lens$getting,
+	_1: {
+		ctor: '::',
+		_0: _mossprecott$lens_viz$Lens$setting,
+		_1: {
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Lens$aSetter,
+			_1: {ctor: '[]'}
+		}
 	}
+};
+var _mossprecott$lens_viz$Lens$allOptics = A2(
+	_elm_lang$core$Basics_ops['++'],
+	_mossprecott$lens_viz$Lens$primaryOptics,
+	A2(_elm_lang$core$Basics_ops['++'], _mossprecott$lens_viz$Lens$extraOptics, _mossprecott$lens_viz$Lens$argumentOptics));
+var _mossprecott$lens_viz$Lens$VarOptic = function (a) {
+	return {ctor: 'VarOptic', _0: a};
+};
+var _mossprecott$lens_viz$Lens$FnOptic = function (a) {
+	return {ctor: 'FnOptic', _0: a};
 };
 var _mossprecott$lens_viz$Functions$fnToSrc = function (_p0) {
 	var _p1 = _p0;
@@ -9314,127 +9948,92 @@ var _mossprecott$lens_viz$Functions$fnToSrc = function (_p0) {
 			}
 		});
 };
-var _mossprecott$lens_viz$Functions$identity = _mossprecott$lens_viz$Haskell$TypeConstructor(
-	{name: 'Identity'});
-var _mossprecott$lens_viz$Functions$aSetter = _mossprecott$lens_viz$Haskell$TypeAlias(
+var _mossprecott$lens_viz$Functions$aSetter = A3(
+	_mossprecott$lens_viz$Haskell$TypeAlias,
+	'ASetter',
 	{
-		name: 'ASetter',
-		args: {
+		ctor: '::',
+		_0: _mossprecott$lens_viz$Lens$s,
+		_1: {
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Lens$t,
+			_1: {
+				ctor: '::',
+				_0: _mossprecott$lens_viz$Lens$a,
+				_1: {
+					ctor: '::',
+					_0: _mossprecott$lens_viz$Lens$b,
+					_1: {ctor: '[]'}
+				}
+			}
+		}
+	},
+	A2(
+		_mossprecott$lens_viz$Haskell$Fn,
+		A2(
+			_mossprecott$lens_viz$Haskell$Fn,
+			_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a),
+			A2(
+				_mossprecott$lens_viz$Haskell$App,
+				_mossprecott$lens_viz$Haskell$Constr(_mossprecott$lens_viz$Library$ident),
+				_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$b))),
+		A2(
+			_mossprecott$lens_viz$Haskell$Fn,
+			_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s),
+			A2(
+				_mossprecott$lens_viz$Haskell$App,
+				_mossprecott$lens_viz$Haskell$Constr(_mossprecott$lens_viz$Library$ident),
+				_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$t)))));
+var _mossprecott$lens_viz$Functions$r = _mossprecott$lens_viz$Haskell$TypeVar('r');
+var _mossprecott$lens_viz$Functions$getting = A3(
+	_mossprecott$lens_viz$Haskell$TypeAlias,
+	'Getting',
+	{
+		ctor: '::',
+		_0: _mossprecott$lens_viz$Functions$r,
+		_1: {
 			ctor: '::',
 			_0: _mossprecott$lens_viz$Lens$s,
 			_1: {
 				ctor: '::',
-				_0: _mossprecott$lens_viz$Lens$t,
-				_1: {
+				_0: _mossprecott$lens_viz$Lens$a,
+				_1: {ctor: '[]'}
+			}
+		}
+	},
+	A2(
+		_mossprecott$lens_viz$Haskell$Fn,
+		A2(
+			_mossprecott$lens_viz$Haskell$Fn,
+			_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a),
+			A2(
+				_mossprecott$lens_viz$Haskell$app,
+				_mossprecott$lens_viz$Haskell$Constr(_mossprecott$lens_viz$Library$const),
+				{
 					ctor: '::',
-					_0: _mossprecott$lens_viz$Lens$a,
+					_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Functions$r),
 					_1: {
 						ctor: '::',
-						_0: _mossprecott$lens_viz$Lens$b,
+						_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a),
 						_1: {ctor: '[]'}
 					}
-				}
-			}
-		},
-		rhs: A2(
+				})),
+		A2(
 			_mossprecott$lens_viz$Haskell$Fn,
+			_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s),
 			A2(
-				_mossprecott$lens_viz$Haskell$Fn,
-				_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a),
-				A2(
-					_mossprecott$lens_viz$Haskell$App,
-					_mossprecott$lens_viz$Haskell$Constr(_mossprecott$lens_viz$Functions$identity),
-					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$b))),
-			A2(
-				_mossprecott$lens_viz$Haskell$Fn,
-				_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s),
-				A2(
-					_mossprecott$lens_viz$Haskell$App,
-					_mossprecott$lens_viz$Haskell$Constr(_mossprecott$lens_viz$Functions$identity),
-					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$t))))
-	});
-var _mossprecott$lens_viz$Functions$const = _mossprecott$lens_viz$Haskell$TypeConstructor(
-	{name: 'Const'});
-var _mossprecott$lens_viz$Functions$r = _mossprecott$lens_viz$Haskell$TypeVar(
-	{name: 'r'});
-var _mossprecott$lens_viz$Functions$getting = _mossprecott$lens_viz$Haskell$TypeAlias(
-	{
-		name: 'Getting',
-		args: {
-			ctor: '::',
-			_0: _mossprecott$lens_viz$Functions$r,
-			_1: {
-				ctor: '::',
-				_0: _mossprecott$lens_viz$Lens$s,
-				_1: {
+				_mossprecott$lens_viz$Haskell$app,
+				_mossprecott$lens_viz$Haskell$Constr(_mossprecott$lens_viz$Library$const),
+				{
 					ctor: '::',
-					_0: _mossprecott$lens_viz$Lens$a,
-					_1: {ctor: '[]'}
-				}
-			}
-		},
-		rhs: A2(
-			_mossprecott$lens_viz$Haskell$Fn,
-			A2(
-				_mossprecott$lens_viz$Haskell$Fn,
-				_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a),
-				A2(
-					_mossprecott$lens_viz$Haskell$app,
-					_mossprecott$lens_viz$Haskell$Constr(_mossprecott$lens_viz$Functions$const),
-					{
+					_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Functions$r),
+					_1: {
 						ctor: '::',
-						_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Functions$r),
-						_1: {
-							ctor: '::',
-							_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a),
-							_1: {ctor: '[]'}
-						}
-					})),
-			A2(
-				_mossprecott$lens_viz$Haskell$Fn,
-				_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s),
-				A2(
-					_mossprecott$lens_viz$Haskell$app,
-					_mossprecott$lens_viz$Haskell$Constr(_mossprecott$lens_viz$Functions$const),
-					{
-						ctor: '::',
-						_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Functions$r),
-						_1: {
-							ctor: '::',
-							_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s),
-							_1: {ctor: '[]'}
-						}
-					})))
-	});
-var _mossprecott$lens_viz$Functions$m = _mossprecott$lens_viz$Haskell$TypeVar(
-	{name: 'm'});
-var _mossprecott$lens_viz$Functions$monad = _mossprecott$lens_viz$Haskell$TypeClass(
-	{
-		name: 'Monad',
-		supers: {
-			ctor: '::',
-			_0: _mossprecott$lens_viz$Lens$applicative,
-			_1: {ctor: '[]'}
-		}
-	});
-var _mossprecott$lens_viz$Functions$monadReader = _mossprecott$lens_viz$Haskell$TypeClass(
-	{
-		name: 'MonadReader',
-		supers: {
-			ctor: '::',
-			_0: _mossprecott$lens_viz$Functions$monad,
-			_1: {ctor: '[]'}
-		}
-	});
-var _mossprecott$lens_viz$Functions$monadState = _mossprecott$lens_viz$Haskell$TypeClass(
-	{
-		name: 'MonadState',
-		supers: {
-			ctor: '::',
-			_0: _mossprecott$lens_viz$Functions$monad,
-			_1: {ctor: '[]'}
-		}
-	});
+						_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s),
+						_1: {ctor: '[]'}
+					}
+				}))));
+var _mossprecott$lens_viz$Functions$m = _mossprecott$lens_viz$Haskell$TypeVar('m');
 var _mossprecott$lens_viz$Functions$functions = {
 	ctor: '::',
 	_0: {
@@ -9446,11 +10045,15 @@ var _mossprecott$lens_viz$Functions$functions = {
 				ctor: '::',
 				_0: A2(
 					_mossprecott$lens_viz$Haskell$TypeClassConstraint,
-					_mossprecott$lens_viz$Functions$monadReader,
+					_mossprecott$lens_viz$Library$monadReader,
 					{
 						ctor: '::',
-						_0: _mossprecott$lens_viz$Functions$m,
-						_1: {ctor: '[]'}
+						_0: _mossprecott$lens_viz$Lens$s,
+						_1: {
+							ctor: '::',
+							_0: _mossprecott$lens_viz$Functions$m,
+							_1: {ctor: '[]'}
+						}
 					}),
 				_1: {ctor: '[]'}
 			},
@@ -9507,7 +10110,10 @@ var _mossprecott$lens_viz$Functions$functions = {
 				A2(
 					_mossprecott$lens_viz$Haskell$Fn,
 					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s),
-					_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$t)))
+					A2(
+						_mossprecott$lens_viz$Haskell$Fn,
+						_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s),
+						_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$t))))
 		},
 		_1: {
 			ctor: '::',
@@ -9558,7 +10164,7 @@ var _mossprecott$lens_viz$Functions$functions = {
 							ctor: '::',
 							_0: A2(
 								_mossprecott$lens_viz$Haskell$TypeClassConstraint,
-								_mossprecott$lens_viz$Functions$monadState,
+								_mossprecott$lens_viz$Library$monadState,
 								{
 									ctor: '::',
 									_0: _mossprecott$lens_viz$Lens$s,
@@ -9600,7 +10206,64 @@ var _mossprecott$lens_viz$Functions$functions = {
 									_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Functions$m),
 									_mossprecott$lens_viz$Haskell$Unit))))
 				},
-				_1: {ctor: '[]'}
+				_1: {
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'modifying',
+						_1: A2(
+							_mossprecott$lens_viz$Haskell$Constrained,
+							{
+								ctor: '::',
+								_0: A2(
+									_mossprecott$lens_viz$Haskell$TypeClassConstraint,
+									_mossprecott$lens_viz$Library$monadState,
+									{
+										ctor: '::',
+										_0: _mossprecott$lens_viz$Lens$s,
+										_1: {
+											ctor: '::',
+											_0: _mossprecott$lens_viz$Functions$m,
+											_1: {ctor: '[]'}
+										}
+									}),
+								_1: {ctor: '[]'}
+							},
+							A2(
+								_mossprecott$lens_viz$Haskell$Fn,
+								A2(
+									_mossprecott$lens_viz$Haskell$app,
+									_mossprecott$lens_viz$Haskell$aliasRef(_mossprecott$lens_viz$Functions$aSetter),
+									{
+										ctor: '::',
+										_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s),
+										_1: {
+											ctor: '::',
+											_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$s),
+											_1: {
+												ctor: '::',
+												_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a),
+												_1: {
+													ctor: '::',
+													_0: _mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$b),
+													_1: {ctor: '[]'}
+												}
+											}
+										}
+									}),
+								A2(
+									_mossprecott$lens_viz$Haskell$Fn,
+									A2(
+										_mossprecott$lens_viz$Haskell$Fn,
+										_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$a),
+										_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Lens$b)),
+									A2(
+										_mossprecott$lens_viz$Haskell$App,
+										_mossprecott$lens_viz$Haskell$Var(_mossprecott$lens_viz$Functions$m),
+										_mossprecott$lens_viz$Haskell$Unit))))
+					},
+					_1: {ctor: '[]'}
+				}
 			}
 		}
 	}
@@ -9664,9 +10327,22 @@ var _mossprecott$lens_viz$Main$update = F2(
 	});
 var _mossprecott$lens_viz$Main$Model = F4(
 	function (a, b, c, d) {
-		return {optics: a, aligned: b, simple: c, regular: d};
+		return {aligned: a, simple: b, regular: c, composed: d};
 	});
-var _mossprecott$lens_viz$Main$model = A4(_mossprecott$lens_viz$Main$Model, _mossprecott$lens_viz$Lens$allOptics, true, false, false);
+var _mossprecott$lens_viz$Main$model = A4(
+	_mossprecott$lens_viz$Main$Model,
+	true,
+	false,
+	false,
+	{
+		ctor: '::',
+		_0: A2(_mossprecott$lens_viz$Lens$orSame, _mossprecott$lens_viz$Lens$simplify, _mossprecott$lens_viz$Lens$lens),
+		_1: {
+			ctor: '::',
+			_0: _mossprecott$lens_viz$Lens$prism,
+			_1: {ctor: '[]'}
+		}
+	});
 var _mossprecott$lens_viz$Main$SetRegular = function (a) {
 	return {ctor: 'SetRegular', _0: a};
 };
@@ -9677,6 +10353,30 @@ var _mossprecott$lens_viz$Main$SetAligned = function (a) {
 	return {ctor: 'SetAligned', _0: a};
 };
 var _mossprecott$lens_viz$Main$view = function (model) {
+	var prepareIf = F3(
+		function (b, f, x) {
+			return b ? f(x) : x;
+		});
+	var prepareOptic = A2(
+		prepareIf,
+		model.simple,
+		_mossprecott$lens_viz$Lens$orSame(_mossprecott$lens_viz$Lens$simplify));
+	var optics = A2(_elm_lang$core$List$map, prepareOptic, _mossprecott$lens_viz$Lens$allOptics);
+	var prepareType = A2(
+		prepareIf,
+		!model.regular,
+		_mossprecott$lens_viz$Lens$orSame(_mossprecott$lens_viz$Lens$irregular));
+	var renderSpan = function (o) {
+		return A2(
+			_elm_lang$html$Html$p,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: _mossprecott$lens_viz$Type$nodeToHtml(
+					A2(_mossprecott$lens_viz$Lens$opticToSrc, prepareType, o)),
+				_1: {ctor: '[]'}
+			});
+	};
 	var renderRow = function (o) {
 		return A2(
 			_elm_lang$html$Html$tr,
@@ -9693,94 +10393,167 @@ var _mossprecott$lens_viz$Main$view = function (model) {
 							_1: {ctor: '[]'}
 						});
 				},
-				_mossprecott$lens_viz$Lens$opticToSrcRow(o)));
+				A2(_mossprecott$lens_viz$Lens$opticToSrcRow, prepareType, o)));
 	};
-	var renderSpan = function (o) {
-		return A2(
-			_elm_lang$html$Html$p,
-			{ctor: '[]'},
-			{
-				ctor: '::',
-				_0: _mossprecott$lens_viz$Type$nodeToHtml(
-					_mossprecott$lens_viz$Lens$opticToSrc(o)),
-				_1: {ctor: '[]'}
-			});
-	};
-	var prepareIf = F3(
-		function (b, f, x) {
-			return b ? f(x) : x;
-		});
-	var prepare = function (_p1) {
-		return A3(
-			prepareIf,
-			model.regular,
-			_mossprecott$lens_viz$Lens$orSame(_mossprecott$lens_viz$Lens$regular),
-			A3(
-				prepareIf,
-				model.simple,
-				_mossprecott$lens_viz$Lens$orSame(_mossprecott$lens_viz$Lens$simplify),
-				_p1));
-	};
-	var optics = A2(_elm_lang$core$List$map, prepare, model.optics);
 	return A2(
 		_elm_lang$html$Html$div,
-		{ctor: '[]'},
 		{
 			ctor: '::',
-			_0: model.aligned ? A2(
-				_elm_lang$html$Html$table,
-				{ctor: '[]'},
-				A2(_elm_lang$core$List$map, renderRow, optics)) : A2(
+			_0: _elm_lang$html$Html_Attributes$style(
+				{
+					ctor: '::',
+					_0: {ctor: '_Tuple2', _0: 'margin', _1: '20px'},
+					_1: {ctor: '[]'}
+				}),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
 				_elm_lang$html$Html$div,
-				{ctor: '[]'},
-				A2(_elm_lang$core$List$map, renderSpan, optics)),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$fieldset,
-					{ctor: '[]'},
-					{
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$style(
+						{
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: 'margin-bottom', _1: '20px'},
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: A3(
+						_mossprecott$lens_viz$Main$checkbox,
+						_mossprecott$lens_viz$Main$SetAligned(!model.aligned),
+						'Aligned',
+						model.aligned),
+					_1: {
 						ctor: '::',
 						_0: A3(
 							_mossprecott$lens_viz$Main$checkbox,
-							_mossprecott$lens_viz$Main$SetAligned(!model.aligned),
-							'Aligned',
-							model.aligned),
+							_mossprecott$lens_viz$Main$SetSimple(!model.simple),
+							'Simple',
+							model.simple),
 						_1: {
 							ctor: '::',
 							_0: A3(
 								_mossprecott$lens_viz$Main$checkbox,
-								_mossprecott$lens_viz$Main$SetSimple(!model.simple),
-								'Simple',
-								model.simple),
-							_1: {
-								ctor: '::',
-								_0: A3(
-									_mossprecott$lens_viz$Main$checkbox,
-									_mossprecott$lens_viz$Main$SetRegular(!model.regular),
-									'Regular',
-									model.regular),
-								_1: {ctor: '[]'}
-							}
+								_mossprecott$lens_viz$Main$SetRegular(!model.regular),
+								'Regular',
+								model.regular),
+							_1: {ctor: '[]'}
 						}
-					}),
+					}
+				}),
+			_1: {
+				ctor: '::',
+				_0: model.aligned ? A2(
+					_elm_lang$html$Html$table,
+					{ctor: '[]'},
+					A2(_elm_lang$core$List$map, renderRow, optics)) : A2(
+					_elm_lang$html$Html$div,
+					{ctor: '[]'},
+					A2(_elm_lang$core$List$map, renderSpan, optics)),
 				_1: {
 					ctor: '::',
 					_0: A2(
 						_elm_lang$html$Html$div,
 						{ctor: '[]'},
-						A2(
-							_elm_lang$core$List$map,
-							function (_p2) {
-								return A2(
-									_elm_lang$html$Html$div,
+						{
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$p,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text('l :: (a -> f a) -> c -> f c'),
+									_1: {ctor: '[]'}
+								}),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$p,
 									{ctor: '[]'},
-									_elm_lang$core$List$singleton(
-										_mossprecott$lens_viz$Type$nodeToHtml(
-											_mossprecott$lens_viz$Functions$fnToSrc(_p2))));
-							},
-							_mossprecott$lens_viz$Functions$functions)),
-					_1: {ctor: '[]'}
+									{
+										ctor: '::',
+										_0: _mossprecott$lens_viz$Type$nodeToHtml(
+											_mossprecott$lens_viz$Type$Words(
+												A2(
+													_elm_lang$core$Basics_ops['++'],
+													{
+														ctor: '::',
+														_0: _mossprecott$lens_viz$Type$Name('l'),
+														_1: {
+															ctor: '::',
+															_0: _mossprecott$lens_viz$Type$Symbol('='),
+															_1: {ctor: '[]'}
+														}
+													},
+													A2(
+														_elm_lang$core$List$intersperse,
+														_mossprecott$lens_viz$Type$Symbol('.'),
+														A2(
+															_elm_lang$core$List$map,
+															function (l) {
+																return _mossprecott$lens_viz$Type$Words(
+																	A2(
+																		_elm_lang$core$Basics_ops['++'],
+																		{
+																			ctor: '::',
+																			_0: _mossprecott$lens_viz$Type$Symbol('('),
+																			_1: {
+																				ctor: '::',
+																				_0: _mossprecott$lens_viz$Type$Name('_'),
+																				_1: {
+																					ctor: '::',
+																					_0: _mossprecott$lens_viz$Type$Symbol('::'),
+																					_1: {
+																						ctor: '::',
+																						_0: _mossprecott$lens_viz$Type$Name(l.name),
+																						_1: {ctor: '[]'}
+																					}
+																				}
+																			}
+																		},
+																		A2(
+																			_elm_lang$core$Basics_ops['++'],
+																			A2(
+																				_elm_lang$core$List$map,
+																				function (v) {
+																					return _mossprecott$lens_viz$Type$Name(v.name);
+																				},
+																				l.params),
+																			{
+																				ctor: '::',
+																				_0: _mossprecott$lens_viz$Type$Symbol(')'),
+																				_1: {ctor: '[]'}
+																			})));
+															},
+															model.composed))))),
+										_1: {ctor: '[]'}
+									}),
+								_1: {ctor: '[]'}
+							}
+						}),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$div,
+							{ctor: '[]'},
+							A2(
+								_elm_lang$core$List$map,
+								function (_p1) {
+									return A2(
+										_elm_lang$html$Html$div,
+										{ctor: '[]'},
+										_elm_lang$core$List$singleton(
+											_mossprecott$lens_viz$Type$nodeToHtml(
+												_mossprecott$lens_viz$Functions$fnToSrc(_p1))));
+								},
+								_mossprecott$lens_viz$Functions$functions)),
+						_1: {ctor: '[]'}
+					}
 				}
 			}
 		});
