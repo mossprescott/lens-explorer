@@ -4,7 +4,7 @@ import Expect exposing (..)
 import Test exposing (..)
 import Haskell exposing (..)
 import Type exposing (nodeToString)
-import Functions exposing (..)
+import Lens.Functions exposing (..)
 import Dict
 
 

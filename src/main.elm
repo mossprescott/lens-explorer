@@ -3,9 +3,11 @@ module Main exposing (main)
 import Html exposing (Html, div, fieldset, input, label, table, td, tr, text)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
-import Functions exposing (fnToSrc, functions)
 import Haskell exposing (TypeVar, typeToSrc)
-import Lens exposing (..)
+import Lens.Functions exposing (fnToSrc, functions)
+import Lens.Render exposing (..)
+import Lens.Standard exposing (..)
+import Lens.Types exposing (..)
 import Type exposing (..)
 
 

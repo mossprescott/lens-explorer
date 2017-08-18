@@ -1,12 +1,15 @@
 module LensTest exposing (..)
 
 import Expect exposing (..)
+import Fuzz exposing (..)
 import Test exposing (..)
 import Haskell exposing (..)
-import Lens exposing (..)
+import Lens.Compose exposing (..)
+import Lens.Render exposing (..)
+import Lens.Standard exposing (..)
+import Lens.Types exposing (..)
 import Library exposing (..)
 import Type exposing (nodeToString)
-import Fuzz exposing (..)
 
 
 typeTests =
@@ -146,22 +149,24 @@ composeTests =
                     Maybe.map2 compose (simplify lens) (simplify lens)
                         |> Expect.equal
                             (Just
-                                -- Note: these all just substitutions on simpleLens
-                                ( Optic "Lens'"
-                                    (ConstrainedEffect f [ functor ])
-                                    FnArrow
-                                    (OpticSubjects x y)
-                                    Nothing
-                                , Optic "Lens'"
-                                    (ConstrainedEffect f [ functor ])
-                                    FnArrow
-                                    (OpticSubjects y z)
-                                    Nothing
-                                , Optic "?"
-                                    (ConstrainedEffect f [ functor ])
-                                    FnArrow
-                                    (OpticSubjects x z)
-                                    Nothing
+                                (Ok
+                                    -- Note: these all just substitutions on simpleLens
+                                    ( Optic "Lens'"
+                                        (ConstrainedEffect f [ functor ])
+                                        FnArrow
+                                        (OpticSubjects x y)
+                                        Nothing
+                                    , Optic "Lens'"
+                                        (ConstrainedEffect f [ functor ])
+                                        FnArrow
+                                        (OpticSubjects y z)
+                                        Nothing
+                                    , Optic "?"
+                                        (ConstrainedEffect f [ functor ])
+                                        FnArrow
+                                        (OpticSubjects x z)
+                                        Nothing
+                                    )
                                 )
                             )
             ]
