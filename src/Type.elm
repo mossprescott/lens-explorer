@@ -1,6 +1,6 @@
 module Type
     exposing
-        ( Node(Keyword, Name, Symbol, Words, Juxt)
+        ( Node(..)
         , Precedence
         , parenthesize
         , parenthesizeLeftAssoc
@@ -119,17 +119,17 @@ nodeToHtml : Node -> Html msg
 nodeToHtml n =
     let
         sourceSans =
-            ( "font-family", "Source Sans Pro, sans-serif" )
+            style "font-family" "Source Sans Pro, sans-serif"
     in
         case n of
             Keyword str ->
-                span [ style [ sourceSans, ( "font-weight", "600" ) ] ] [ text str ]
+                span [ sourceSans,  style "font-weight" "600" ] [ text str ]
 
             Name str ->
-                span [ style [ sourceSans, ( "font-style", "italic" ) ] ] [ text str ]
+                span [ sourceSans, style "font-style" "italic" ] [ text str ]
 
             Symbol str ->
-                span [ style [ sourceSans ] ] [ text str ]
+                span [ sourceSans ] [ text str ]
 
             Words ns ->
                 nodeToHtml (Juxt (List.intersperse (Symbol " ") ns))

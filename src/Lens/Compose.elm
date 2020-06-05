@@ -18,7 +18,7 @@ compose left right =
                     Ok FnArrow
 
                 _ ->
-                    Err ("TODO: Don't know how to combine: " ++ toString left.arrow ++ " and " ++ toString right.arrow)
+                    Err ("TODO: Don't know how to combine: " ++ Debug.toString left.arrow ++ " and " ++ Debug.toString right.arrow)
 
         commonEffect =
             case ( left.effect, right.effect ) of
@@ -29,10 +29,10 @@ compose left right =
                     if (lconstr == rconstr) then
                         Ok (FixedEffect lconstr lvs)
                     else
-                        Err ("Can't unify " ++ toString left.effect ++ " and " ++ toString right.effect)
+                        Err ("Can't unify " ++ Debug.toString left.effect ++ " and " ++ Debug.toString right.effect)
 
                 _ ->
-                    Err ("TODO: Don't know how to combine: " ++ toString left.arrow ++ " and " ++ toString right.arrow)
+                    Err ("TODO: Don't know how to combine: " ++ Debug.toString left.arrow ++ " and " ++ Debug.toString right.arrow)
 
         commonTypeClasses tcs1 tcs2 =
             -- TODO
@@ -46,4 +46,4 @@ compose left right =
 
 composeMany : List Optic -> ( List Optic, Optic )
 composeMany optics =
-    Debug.crash "not implemented"
+    Debug.todo "not implemented"

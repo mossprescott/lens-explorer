@@ -79,7 +79,7 @@ arrowClasses a =
             []
 
         ConstrainedArrow p tcs ->
-            List.map (flip TypeClassConstraint [ p ]) tcs
+            List.map (\ tc -> TypeClassConstraint tc [ p ]) tcs
 
         FixedArrow _ ->
             []
@@ -91,7 +91,7 @@ effectClasses : OpticEffect -> List Constraint
 effectClasses e =
     case e of
         ConstrainedEffect f tcs ->
-            List.map (flip TypeClassConstraint [ f ]) tcs
+            List.map (\ tc -> TypeClassConstraint tc [ f ]) tcs
 
         FixedEffect _ _ ->
             []
@@ -131,7 +131,7 @@ opticFnType o ( a, b ) =
     app (opticArrowType o.arrow) [ (Var a), App (opticEffectType o.effect) (Var b) ]
 
 
-opticVars : Optic -> ( TypeVar, TypeVar, TypeVar, TypeVar )
+opticVars : Optic -> ( (TypeVar, TypeVar), (TypeVar, TypeVar) )
 opticVars o =
     let
         ( s, a ) =
@@ -139,19 +139,19 @@ opticVars o =
 
         ( t, b ) =
             case o.back of
-                Just b ->
-                    ( b.subject, b.value )
+                Just ob ->
+                    ( ob.subject, ob.value )
 
                 Nothing ->
                     ( s, a )
     in
-        ( s, t, a, b )
+        ( (s, t), (a, b) )
 
 
 opticType : Optic -> Type
 opticType o =
     let
-        ( s, t, a, b ) =
+        ( (s, t), (a, b) ) =
             opticVars o
     in
         Constrained
@@ -187,7 +187,7 @@ appear in the same columns.
 opticToSrcRow : (Type -> Type) -> Optic -> List Node
 opticToSrcRow prepare o =
     let
-        ( s, t, a, b ) =
+        ( (s, t), (a, b) ) =
             opticVars o
     in
         [ Keyword "type"

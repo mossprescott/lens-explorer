@@ -144,7 +144,7 @@ composeTests =
             TypeVar "z"
     in
         describe "compose"
-            [ test "two simple lenses" <|
+            [ test "two simple lenses (TODO)" <|
                 \() ->
                     Maybe.map2 compose (simplify lens) (simplify lens)
                         |> Expect.equal

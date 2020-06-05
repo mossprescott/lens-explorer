@@ -124,7 +124,7 @@ substitute pairs t =
                     TypeClassConstraint tc (List.map newVar vs)
 
                 Equivalent _ _ ->
-                    Debug.crash "unimplemented"
+                    Debug.todo "unimplemented"
     in
         case t of
             Unit ->
@@ -168,8 +168,8 @@ prec =
   expression.
 -}
 typeToSrc : Type -> ( Precedence, Node )
-typeToSrc t =
-    case t of
+typeToSrc typ =
+    case typ of
         Unit ->
             ( prec.atom, Symbol "()" )
 

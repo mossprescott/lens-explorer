@@ -9,11 +9,11 @@ import Lens.Render exposing (..)
 import Lens.Standard exposing (..)
 import Lens.Types exposing (..)
 import Type exposing (..)
-
+import Browser
 
 main =
-    Html.beginnerProgram
-        { model = model
+    Browser.sandbox
+        { init = initialState
         , view = view
         , update = update
         }
@@ -31,8 +31,8 @@ type alias Model =
     }
 
 
-model : Model
-model =
+initialState : Model
+initialState =
     Model True False False [ (orSame simplify) lens, prism ]
 
 
@@ -87,8 +87,8 @@ view model =
         renderRow o =
             tr [] (List.map (\n -> td [] [ nodeToHtml n ]) (opticToSrcRow prepareType o))
     in
-        div [ style [ ( "margin", "20px" ) ] ]
-            [ div [ style [ ( "margin-bottom", "20px" ) ] ]
+        div [ style "margin" "20px" ]
+            [ div [ style "margin-bottom" "20px" ]
                 [ checkbox (SetAligned (not model.aligned)) "Aligned" model.aligned
                 , checkbox (SetSimple (not model.simple)) "Simple" model.simple
                 , checkbox (SetRegular (not model.regular)) "Regular" model.regular
@@ -129,7 +129,7 @@ view model =
 checkbox : msg -> String -> Bool -> Html msg
 checkbox msg name selected =
     label
-        [ style [ ( "padding", "20px" ) ]
+        [ style "padding" "20px"
         ]
         [ input [ type_ "checkbox", checked selected, onClick msg ] []
         , text name

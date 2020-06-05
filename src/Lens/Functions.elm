@@ -2,7 +2,7 @@ module Lens.Functions exposing (..)
 
 import Haskell exposing (..)
 import Lens.Standard exposing (s, t, a, b)
-import Type exposing (Node(Name, Symbol, Words))
+import Type exposing (Node(..))
 import Library exposing (..)
 
 

@@ -72,8 +72,8 @@ TODO: this is currently pretty half-assed; it only looks at a couple of the node
 that we know occur near the top.
 -}
 irregular : Type -> Maybe Type
-irregular t =
-    case t of
+irregular typ =
+    case typ of
         App (App (Prefix FnOp) t1) t2 ->
             Just (Fn t1 t2)
 
