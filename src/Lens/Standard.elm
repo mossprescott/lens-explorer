@@ -1,10 +1,10 @@
-module Lens.Standard exposing (..)
+module Lens.Standard exposing (a, aSetter, allOptics, argumentOptics, b, extraOptics, f, fold, fold1, getter, getting, iso, lens, p, primaryOptics, prism, s, setter, setting, t, traversal)
 
 {-| Define many of the standard types from the lens package as Optic values.
 -}
 
-import Lens.Types exposing (..)
 import Haskell exposing (..)
+import Lens.Types exposing (..)
 import Library exposing (..)
 
 
@@ -100,7 +100,7 @@ setter =
 -}
 getting =
     Optic "Getting"
-        (FixedEffect const [ (TypeVar "r") ])
+        (FixedEffect const [ TypeVar "r" ])
         FnArrow
         (OpticSubjects s a)
         Nothing

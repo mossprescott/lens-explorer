@@ -1,26 +1,27 @@
-module Type
-    exposing
-        ( Node(..)
-        , Precedence
-        , parenthesize
-        , parenthesizeLeftAssoc
-        , parenthesizeRightAssoc
-        , parenthesizeOne
-        , nodeToHtml
-        , nodeToString
-        )
+module Type exposing
+    ( Node(..), Precedence
+    , nodeToHtml, nodeToString
+    , parenthesize, parenthesizeLeftAssoc, parenthesizeRightAssoc, parenthesizeOne
+    )
 
 {-| This module provides a simple AST for Haskell type declarations and conversion to
 HTML markup.
 
+
 # AST
+
 @docs Node, Precedence
 
+
 # Rendering
+
 @docs nodeToHtml, nodeToString
 
+
 # Helpers
+
 @docs parenthesize, parenthesizeLeftAssoc, parenthesizeRightAssoc, parenthesizeOne
+
 -}
 
 import Html exposing (Html, p, span, text)
@@ -61,22 +62,23 @@ parenthesize_ cmp1 cmp2 pOuter sepOpt p1 p2 =
             , parenthesizeOne_ cmp2 pOuter p2
             ]
     in
-        ( pOuter
-        , Words
-            (case sepOpt of
-                Nothing ->
-                    pPairs
+    ( pOuter
+    , Words
+        (case sepOpt of
+            Nothing ->
+                pPairs
 
-                Just sep ->
-                    List.intersperse sep pPairs
-            )
+            Just sep ->
+                List.intersperse sep pPairs
         )
+    )
 
 
 parenthesizeOne_ : (Precedence -> Precedence -> Bool) -> Precedence -> ( Precedence, Node ) -> Node
 parenthesizeOne_ cmp outer ( inner, n ) =
-    if (cmp inner outer) then
+    if cmp inner outer then
         Juxt [ Symbol "(", n, Symbol ")" ]
+
     else
         n
 
@@ -121,21 +123,21 @@ nodeToHtml n =
         sourceSans =
             style "font-family" "Source Sans Pro, sans-serif"
     in
-        case n of
-            Keyword str ->
-                span [ sourceSans,  style "font-weight" "600" ] [ text str ]
+    case n of
+        Keyword str ->
+            span [ sourceSans, style "font-weight" "600" ] [ text str ]
 
-            Name str ->
-                span [ sourceSans, style "font-style" "italic" ] [ text str ]
+        Name str ->
+            span [ sourceSans, style "font-style" "italic" ] [ text str ]
 
-            Symbol str ->
-                span [ sourceSans ] [ text str ]
+        Symbol str ->
+            span [ sourceSans ] [ text str ]
 
-            Words ns ->
-                nodeToHtml (Juxt (List.intersperse (Symbol " ") ns))
+        Words ns ->
+            nodeToHtml (Juxt (List.intersperse (Symbol " ") ns))
 
-            Juxt ns ->
-                span [] (List.map nodeToHtml ns)
+        Juxt ns ->
+            span [] (List.map nodeToHtml ns)
 
 
 {-| Translate AST nodes into a String. Just flattens and strips the constructors.

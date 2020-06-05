@@ -1,4 +1,4 @@
-module Lens.Render exposing (..)
+module Lens.Render exposing (arrowClasses, constraintsToSrc, effectClasses, opticArrowType, opticEffectType, opticFnType, opticParams, opticToSrc, opticToSrcRow, opticType, opticUnivParams, opticVars)
 
 {-| Functions translating the Optic ADT to Haskell types and the source code AST.
 -}
@@ -40,7 +40,7 @@ opticParams o =
                 Nothing ->
                     [ o.forward.subject, o.forward.value ]
     in
-        arrowPs ++ effectPs ++ subjectPs
+    arrowPs ++ effectPs ++ subjectPs
 
 
 {-| Universally-quantified type parameters, e.g. `p, f`.
@@ -67,7 +67,7 @@ opticUnivParams o =
                 FixedEffect _ _ ->
                     []
     in
-        arrowPs ++ effectPs
+    arrowPs ++ effectPs
 
 
 {-| Type classes required for the "arrow" type.
@@ -79,7 +79,7 @@ arrowClasses a =
             []
 
         ConstrainedArrow p tcs ->
-            List.map (\ tc -> TypeClassConstraint tc [ p ]) tcs
+            List.map (\tc -> TypeClassConstraint tc [ p ]) tcs
 
         FixedArrow _ ->
             []
@@ -91,7 +91,7 @@ effectClasses : OpticEffect -> List Constraint
 effectClasses e =
     case e of
         ConstrainedEffect f tcs ->
-            List.map (\ tc -> TypeClassConstraint tc [ f ]) tcs
+            List.map (\tc -> TypeClassConstraint tc [ f ]) tcs
 
         FixedEffect _ _ ->
             []
@@ -128,10 +128,10 @@ opticArrowType a =
 -}
 opticFnType : Optic -> ( TypeVar, TypeVar ) -> Type
 opticFnType o ( a, b ) =
-    app (opticArrowType o.arrow) [ (Var a), App (opticEffectType o.effect) (Var b) ]
+    app (opticArrowType o.arrow) [ Var a, App (opticEffectType o.effect) (Var b) ]
 
 
-opticVars : Optic -> ( (TypeVar, TypeVar), (TypeVar, TypeVar) )
+opticVars : Optic -> ( ( TypeVar, TypeVar ), ( TypeVar, TypeVar ) )
 opticVars o =
     let
         ( s, a ) =
@@ -145,30 +145,31 @@ opticVars o =
                 Nothing ->
                     ( s, a )
     in
-        ( (s, t), (a, b) )
+    ( ( s, t ), ( a, b ) )
 
 
 opticType : Optic -> Type
 opticType o =
     let
-        ( (s, t), (a, b) ) =
+        ( ( s, t ), ( a, b ) ) =
             opticVars o
     in
-        Constrained
-            (arrowClasses o.arrow ++ effectClasses o.effect)
-            (Fn (opticFnType o ( a, b )) (opticFnType o ( s, t )))
+    Constrained
+        (arrowClasses o.arrow ++ effectClasses o.effect)
+        (Fn (opticFnType o ( a, b )) (opticFnType o ( s, t )))
 
 
 opticToSrc : (Type -> Type) -> Optic -> Node
 opticToSrc prepare o =
     Words
         ([ Keyword "type", Name o.name ]
-            ++ (List.map (\v -> Name v.name) (opticParams o))
+            ++ List.map (\v -> Name v.name) (opticParams o)
             ++ [ Symbol "=" ]
-            ++ (if (List.isEmpty (opticUnivParams o)) then
+            ++ (if List.isEmpty (opticUnivParams o) then
                     []
+
                 else
-                    [ Keyword "forall" ] ++ (List.map (\v -> Name v.name) (opticUnivParams o)) ++ [ Symbol "." ]
+                    [ Keyword "forall" ] ++ List.map (\v -> Name v.name) (opticUnivParams o) ++ [ Symbol "." ]
                )
             ++ [ (Tuple.second << typeToSrc << prepare << opticType) o
                ]
@@ -187,35 +188,39 @@ appear in the same columns.
 opticToSrcRow : (Type -> Type) -> Optic -> List Node
 opticToSrcRow prepare o =
     let
-        ( (s, t), (a, b) ) =
+        ( ( s, t ), ( a, b ) ) =
             opticVars o
     in
-        [ Keyword "type"
-        , Name o.name
-        , Words (List.map (\v -> Name v.name) (opticParams o))
-        , Symbol "="
-        , Words
-            (if (List.isEmpty (opticUnivParams o)) then
-                []
-             else
-                [ Keyword "forall" ] ++ (List.map (\v -> Name v.name) (opticUnivParams o)) ++ [ Symbol "." ]
-            )
-        , Symbol "("
-        , let
-            n =
-                constraintsToSrc (arrowClasses o.arrow)
-          in
-            if ((List.isEmpty (arrowClasses o.arrow)) || (List.isEmpty (effectClasses o.effect))) then
-                n
-            else
-                Juxt [ n, Symbol "," ]
-        , constraintsToSrc (effectClasses o.effect)
-        , Symbol ")"
-        , Symbol "⇒"
-          -- Note: applying the "fn" precedence to wrap in parens only if it not a App:
-        , parenthesizeOne prec.fn (typeToSrc (prepare (opticFnType o ( a, b ))))
-        , Symbol "→"
-          -- Note: never surrounding the "to" type with parens, which turns out to be the expected
-          -- rendering, although it's mostly happenstance that it works out here.
-        , Tuple.second (typeToSrc (prepare (opticFnType o ( s, t ))))
-        ]
+    [ Keyword "type"
+    , Name o.name
+    , Words (List.map (\v -> Name v.name) (opticParams o))
+    , Symbol "="
+    , Words
+        (if List.isEmpty (opticUnivParams o) then
+            []
+
+         else
+            [ Keyword "forall" ] ++ List.map (\v -> Name v.name) (opticUnivParams o) ++ [ Symbol "." ]
+        )
+    , Symbol "("
+    , let
+        n =
+            constraintsToSrc (arrowClasses o.arrow)
+      in
+      if List.isEmpty (arrowClasses o.arrow) || List.isEmpty (effectClasses o.effect) then
+        n
+
+      else
+        Juxt [ n, Symbol "," ]
+    , constraintsToSrc (effectClasses o.effect)
+    , Symbol ")"
+    , Symbol "⇒"
+
+    -- Note: applying the "fn" precedence to wrap in parens only if it not a App:
+    , parenthesizeOne prec.fn (typeToSrc (prepare (opticFnType o ( a, b ))))
+    , Symbol "→"
+
+    -- Note: never surrounding the "to" type with parens, which turns out to be the expected
+    -- rendering, although it's mostly happenstance that it works out here.
+    , Tuple.second (typeToSrc (prepare (opticFnType o ( s, t ))))
+    ]

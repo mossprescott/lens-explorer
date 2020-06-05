@@ -1,11 +1,11 @@
-module FunctionsTest exposing (..)
+module FunctionsTest exposing (sourceTests)
 
-import Expect exposing (..)
-import Test exposing (..)
-import Haskell exposing (..)
-import Type exposing (nodeToString)
-import Lens.Functions exposing (..)
 import Dict
+import Expect exposing (..)
+import Haskell exposing (..)
+import Lens.Functions exposing (..)
+import Test exposing (..)
+import Type exposing (nodeToString)
 
 
 sourceTests =
@@ -19,9 +19,9 @@ sourceTests =
         toSrcString =
             nodeToString << Tuple.second << typeToSrc
     in
-        describe "Source forms"
-            [ test "view" <|
-                \() ->
-                    Maybe.map toSrcString (forName "view")
-                        |> Expect.equal (Just "(MonadReader s m) ⇒ Getting a s a → m a")
-            ]
+    describe "Source forms"
+        [ test "view" <|
+            \() ->
+                Maybe.map toSrcString (forName "view")
+                    |> Expect.equal (Just "(MonadReader s m) ⇒ Getting a s a → m a")
+        ]

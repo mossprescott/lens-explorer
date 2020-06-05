@@ -1,17 +1,28 @@
-module Haskell exposing (..)
+module Haskell exposing
+    ( Type(..), TypeVar, Op(..), Constraint(..), TypeConstructor, TypeClass, Supers(..), app
+    , TypeAlias, aliasRef
+    , typeToSrc, constraintToSrc, prec, substitute
+    )
 
 {-| Haskell types and operations on them. This is not really a full representation of
 Haskell types, but is enough to express the types of parametric functions and typeclass
 constraints.
 
+
 # Basics
+
 @docs Type, TypeVar, Op, Constraint, TypeConstructor, TypeClass, Supers, app
 
+
 # Aliases
+
 @docs TypeAlias, aliasRef
 
+
 # Utilities
+
 @docs typeToSrc, constraintToSrc, prec, substitute
+
 -}
 
 import Dict
@@ -111,7 +122,7 @@ substitute pairs t =
             Dict.fromList (List.map (Tuple.mapFirst (\v -> v.name)) pairs)
 
         newVar v =
-            case (Dict.get v.name byName) of
+            case Dict.get v.name byName of
                 Just tv ->
                     tv
 
@@ -126,29 +137,29 @@ substitute pairs t =
                 Equivalent _ _ ->
                     Debug.todo "unimplemented"
     in
-        case t of
-            Unit ->
-                t
+    case t of
+        Unit ->
+            t
 
-            Var v ->
-                Var (newVar v)
+        Var v ->
+            Var (newVar v)
 
-            Constr _ ->
-                t
+        Constr _ ->
+            t
 
-            App t1 t2 ->
-                App (substitute pairs t1) (substitute pairs t2)
+        App t1 t2 ->
+            App (substitute pairs t1) (substitute pairs t2)
 
-            --Infix t1 op t2 ->
-            --    Infix (substitute pairs t1) op (substitute pairs t2)
-            Fn t1 t2 ->
-                Fn (substitute pairs t1) (substitute pairs t2)
+        --Infix t1 op t2 ->
+        --    Infix (substitute pairs t1) op (substitute pairs t2)
+        Fn t1 t2 ->
+            Fn (substitute pairs t1) (substitute pairs t2)
 
-            Prefix op ->
-                t
+        Prefix op ->
+            t
 
-            Constrained cs t1 ->
-                Constrained cs (substitute pairs t1)
+        Constrained cs t1 ->
+            Constrained cs (substitute pairs t1)
 
 
 {-| Precedence table for Haskell expressions, used in [`typeToSrc`](#typeToSrc).
@@ -165,7 +176,7 @@ prec =
 
 
 {-| Convert a type to Haskell syntax, along with an indication of the precendence of the outermost
-  expression.
+expression.
 -}
 typeToSrc : Type -> ( Precedence, Node )
 typeToSrc typ =

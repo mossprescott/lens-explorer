@@ -1,4 +1,4 @@
-module Lens.Types exposing (..)
+module Lens.Types exposing (Optic, OpticArrow(..), OpticEffect(..), OpticSubjects, irregular, orSame, simplify)
 
 {-| Types and basic operations on Optic, an ADT for representing lens types and
 translating that to Haskell ASTs.

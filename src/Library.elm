@@ -1,4 +1,10 @@
-module Library exposing (..)
+module Library exposing
+    ( profunctor, choice
+    , functor, applicative, apply, contravariant
+    , monad, monadReader, monadState, const, ident
+    , settable, distributive, traversable, foldable
+    , isDefined
+    )
 
 {-| Type classes making up the part of the Haskell library which is referred to by the
 lens types.
@@ -6,20 +12,31 @@ lens types.
 This will be the place to encode everything we need to know about the relationships
 between types to infer what can be used where.
 
+
 # Typically applied to `p`:
+
 @docs profunctor, choice
 
+
 # Typically applied to `f`:
+
 @docs functor, applicative, apply, contravariant
 
+
 # Monad and related classes, used by some of the functions over lenses:
+
 @docs monad, monadReader, monadState, const, ident
 
+
 # Related to Setting:
+
 @docs settable, distributive, traversable, foldable
 
+
 # Other
+
 @docs isDefined
+
 -}
 
 import Haskell exposing (..)

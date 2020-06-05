@@ -1,4 +1,4 @@
-module Lens.Compose exposing (..)
+module Lens.Compose exposing (compose, composeMany)
 
 {-| Operations to compose lens types, based on the Optic ADT.
 -}
@@ -26,8 +26,9 @@ compose left right =
                     Ok (ConstrainedEffect lf (commonTypeClasses ltcs rtcs))
 
                 ( FixedEffect lconstr lvs, FixedEffect rconstr rvs ) ->
-                    if (lconstr == rconstr) then
+                    if lconstr == rconstr then
                         Ok (FixedEffect lconstr lvs)
+
                     else
                         Err ("Can't unify " ++ Debug.toString left.effect ++ " and " ++ Debug.toString right.effect)
 
@@ -38,10 +39,10 @@ compose left right =
             -- TODO
             tcs1 ++ tcs2
     in
-        Result.map2
-            (\e a -> ( left, right, Optic "?" e a left.forward left.back ))
-            commonEffect
-            commonArrow
+    Result.map2
+        (\e a -> ( left, right, Optic "?" e a left.forward left.back ))
+        commonEffect
+        commonArrow
 
 
 composeMany : List Optic -> ( List Optic, Optic )

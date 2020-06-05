@@ -1,14 +1,14 @@
-module LensTest exposing (..)
+module LensTest exposing (composeTests, fancyTests, maybeReg, optic, sourceTests, typeTests)
 
 import Expect exposing (..)
 import Fuzz exposing (..)
-import Test exposing (..)
 import Haskell exposing (..)
 import Lens.Compose exposing (..)
 import Lens.Render exposing (..)
 import Lens.Standard exposing (..)
 import Lens.Types exposing (..)
 import Library exposing (..)
+import Test exposing (..)
 import Type exposing (nodeToString)
 
 
@@ -87,14 +87,15 @@ sourceTests =
 
 
 optic =
-    oneOf (List.map constant (allOptics ++ (List.filterMap simplify allOptics)))
+    oneOf (List.map constant (allOptics ++ List.filterMap simplify allOptics))
 
 
 maybeReg b =
     if b then
         identity
+
     else
-        (orSame irregular)
+        orSame irregular
 
 
 fancyTests =
@@ -109,11 +110,11 @@ fancyTests =
                         (nodeToString << opticToSrc (maybeReg reg)) o
 
                     typ =
-                        (nodeToString << Tuple.second << typeToSrc << (maybeReg reg) << opticType) o
+                        (nodeToString << Tuple.second << typeToSrc << maybeReg reg << opticType) o
                 in
-                    (String.endsWith typ src)
-                        |> Expect.true "fancy src doesn't match type"
-                        |> Expect.onFail (src ++ "\n  but the type looks like \n" ++ typ)
+                String.endsWith typ src
+                    |> Expect.true "fancy src doesn't match type"
+                    |> Expect.onFail (src ++ "\n  but the type looks like \n" ++ typ)
         , fuzz2 optic bool "srcRow" <|
             \o reg ->
                 let
@@ -121,14 +122,14 @@ fancyTests =
                         (nodeToString << Type.Words << opticToSrcRow (maybeReg reg)) o
 
                     typ =
-                        (nodeToString << Tuple.second << typeToSrc << (maybeReg reg) << opticType) o
+                        (nodeToString << Tuple.second << typeToSrc << maybeReg reg << opticType) o
 
                     stripWhitespace =
                         String.filter (\c -> c /= ' ')
                 in
-                    (String.endsWith (stripWhitespace typ) (stripWhitespace src))
-                        |> Expect.true "fancy src doesn't match type"
-                        |> Expect.onFail (src ++ "\n  but the type looks like \n" ++ typ)
+                String.endsWith (stripWhitespace typ) (stripWhitespace src)
+                    |> Expect.true "fancy src doesn't match type"
+                    |> Expect.onFail (src ++ "\n  but the type looks like \n" ++ typ)
         ]
 
 
@@ -143,30 +144,30 @@ composeTests =
         z =
             TypeVar "z"
     in
-        describe "compose"
-            [ test "two simple lenses (TODO)" <|
-                \() ->
-                    Maybe.map2 compose (simplify lens) (simplify lens)
-                        |> Expect.equal
-                            (Just
-                                (Ok
-                                    -- Note: these all just substitutions on simpleLens
-                                    ( Optic "Lens'"
-                                        (ConstrainedEffect f [ functor ])
-                                        FnArrow
-                                        (OpticSubjects x y)
-                                        Nothing
-                                    , Optic "Lens'"
-                                        (ConstrainedEffect f [ functor ])
-                                        FnArrow
-                                        (OpticSubjects y z)
-                                        Nothing
-                                    , Optic "?"
-                                        (ConstrainedEffect f [ functor ])
-                                        FnArrow
-                                        (OpticSubjects x z)
-                                        Nothing
-                                    )
+    describe "compose"
+        [ test "two simple lenses (TODO)" <|
+            \() ->
+                Maybe.map2 compose (simplify lens) (simplify lens)
+                    |> Expect.equal
+                        (Just
+                            (Ok
+                                -- Note: these all just substitutions on simpleLens
+                                ( Optic "Lens'"
+                                    (ConstrainedEffect f [ functor ])
+                                    FnArrow
+                                    (OpticSubjects x y)
+                                    Nothing
+                                , Optic "Lens'"
+                                    (ConstrainedEffect f [ functor ])
+                                    FnArrow
+                                    (OpticSubjects y z)
+                                    Nothing
+                                , Optic "?"
+                                    (ConstrainedEffect f [ functor ])
+                                    FnArrow
+                                    (OpticSubjects x z)
+                                    Nothing
                                 )
                             )
-            ]
+                        )
+        ]
